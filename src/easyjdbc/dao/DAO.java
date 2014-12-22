@@ -1,4 +1,4 @@
-package dao;
+package easyjdbc.dao;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -9,7 +9,7 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
 
-import setting.Setting;
+import easyjdbc.setting.Setting;
 
 public class DAO {
 

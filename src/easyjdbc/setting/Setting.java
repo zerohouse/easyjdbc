@@ -1,4 +1,4 @@
-package setting;
+package easyjdbc.setting;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;

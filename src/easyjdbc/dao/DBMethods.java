@@ -1,13 +1,13 @@
-package dao;
+package easyjdbc.dao;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import annotation.Exclude;
-import annotation.Key;
-import annotation.Table;
+import easyjdbc.annotation.Exclude;
+import easyjdbc.annotation.Key;
+import easyjdbc.annotation.Table;
 
 public class DBMethods {
 
