@@ -4,6 +4,12 @@
 Json형식으로 Dbsetting
 classpath/ .. / database.setting파일을 읽음
 
+	{
+		"url" : "Database URL",
+		"id" : "Database ID",
+		"password" : "Database Password"
+	}
+
 사용할 오브젝트 - 레코드 implement
 @Table("테이블네임")
 @Table(value = "테이블네임", defaultCondition = "기본 조건") - 리스트가져올 때 기본 조건
@@ -13,65 +19,56 @@ classpath/ .. / database.setting파일을 읽음
 
 지원하는 메소드 -----------
 
-DBMethod.insert(Record record)
-DBMethod.update(Record record)
-DBMethod.delete(Record record)
-DBMethod.get(Class<T>, Object PrimaryKey)
-DBMethod.getList(Class<T>)
-DBMethod.getList(Class<T>, String Condition)
+	DBMethod.insert(Record record)
+	DBMethod.update(Record record)
+	DBMethod.delete(Record record)
+	DBMethod.get(Class<T>, Object PrimaryKey)
+	DBMethod.getList(Class<T>)
+	DBMethod.getList(Class<T>, String Condition)
 
 샘플 -------------------
 
-@Table("user")
-public class User implements Record {
-
-	@Key
-	private String id;
-	private String password;
-	private String email;
-	private String nickname;
-	private String gender;
-	private Date timestamp;
-
-	@Override
-	public String toString() {
-		return "User [id=" + id + ", password=" + password + ", email=" + email
-				+ ", nickname=" + nickname + ", gender=" + gender
-				+ ", timestamp=" + timestamp + "]";
+	@table("user")
+	public class User implements Record {
+		@Key
+		private String id;
+		private String password;
+		private String email;
+		private String nickname;
+		private String gender;
+		private Date timestamp;
+	
+		public String getId() {
+			return id;
+		}
+	
+		public String getPassword() {
+			return password;
+		}
+	
+		public String getEmail() {
+			return email;
+		}
+	
+		public String getNickname() {
+			return nickname;
+		}
+	
+		public String getGender() {
+			return gender;
+		}
+	
+		public Date getTimestamp() {
+			return timestamp;
+		}
+	
+		@Override
+		public void set(Object... params) {
+			id = params.length < 1 ? null : (String) params[0];
+			password = params.length < 2 ? null : (String) params[1];
+			email = params.length < 3 ? null : (String) params[2];
+			nickname = params.length < 4 ? null : (String) params[3];
+			gender = params.length < 5 ? null : (String) params[4];
+			timestamp = params.length < 6 ? null : (Date) params[5];
+		}
 	}
-
-	public String getId() {
-		return id;
-	}
-
-	public String getPassword() {
-		return password;
-	}
-
-	public String getEmail() {
-		return email;
-	}
-
-	public String getNickname() {
-		return nickname;
-	}
-
-	public String getGender() {
-		return gender;
-	}
-
-	public Date getTimestamp() {
-		return timestamp;
-	}
-
-	@Override
-	public void set(Object... params) {
-		id = params.length < 1 ? null : (String) params[0];
-		password = params.length < 2 ? null : (String) params[1];
-		email = params.length < 3 ? null : (String) params[2];
-		nickname = params.length < 4 ? null : (String) params[3];
-		gender = params.length < 5 ? null : (String) params[4];
-		timestamp = params.length < 6 ? null : (Date) params[5];
-	}
-
-}
