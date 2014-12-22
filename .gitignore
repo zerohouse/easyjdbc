@@ -3,6 +3,7 @@
 .classpath
 .project
 .settings
+/target/
 
 
 # Created by https://www.gitignore.io
