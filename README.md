@@ -33,7 +33,7 @@ Json형식으로 Dbsetting classpath/ .. / database.setting 파일을 읽음
 	DBMethod.getList(Class<T>)
 	DBMethod.getList(Class<T>, String Condition)
 
-샘플 -------------------
+샘플 오브젝트 -------------------
 
 	@Table("user")
 	public class User implements Record {
@@ -79,3 +79,9 @@ Json형식으로 Dbsetting classpath/ .. / database.setting 파일을 읽음
 			timestamp = params.length < 6 ? null : (Date) params[5];
 		}
 	}
+	
+사용 방법 ----------------
+
+	User user = (User) DBMethods.get(User.class, "zerohouse");
+	List<Record> = DBMethods.getList(User.class, "zerohouse");
+	DBMethods.update(user);
