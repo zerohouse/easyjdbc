@@ -28,7 +28,7 @@ classpath/ .. / database.setting파일을 읽음
 
 샘플 -------------------
 
-	@table("user")
+	@Table("user")
 	public class User implements Record {
 		@Key
 		private String id;
