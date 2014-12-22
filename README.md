@@ -1,8 +1,7 @@
 짜증나는 JDBC 정리하기.
 
 
-Json형식으로 Dbsetting
-classpath/ .. / database.setting파일을 읽음
+Json형식으로 Dbsetting classpath/ .. / database.setting 파일을 읽음
 
 	{
 		"url" : "Database URL",
@@ -10,12 +9,20 @@ classpath/ .. / database.setting파일을 읽음
 		"password" : "Database Password"
 	}
 
-사용할 오브젝트 - 레코드 implement
-@Table("테이블네임")
-@Table(value = "테이블네임", defaultCondition = "기본 조건") - 리스트가져올 때 기본 조건
+오브젝트 --------------
 
-@Key = 프라이머리 필드
-@Exclude = DB에 없는 필드
+	1. implemets Record
+	2. 각 필드명 = DB의 필드명과 일치
+	3. @Table어노테이션으로 테이블명 지정
+	4. @Key어노케이션으로 프라이머리 키 지정
+
+어노테이션 -------------
+	
+	@Table("테이블네임")
+	@Table(value = "테이블네임", defaultCondition = "기본 조건") - 리스트가져올 때 기본 조건
+		
+	@Key = 프라이머리 필드
+	@Exclude = DB에 없는 필드
 
 지원하는 메소드 -----------
 
