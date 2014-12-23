@@ -4,9 +4,9 @@
 Json형식으로 WEB-INF/database.setting 파일을 읽음
 
 	{
-		"url" : "Database URL",
-		"id" : "Database ID",
-		"password" : "Database Password"
+		"url" : "Database URL", // 데이터 베이스 URL
+		"id" : "Database ID", // 데이터베이스 Id
+		"password" : "Database Password" //데이터 베이스 패스워드!
 	}
 
 오브젝트 --------------
@@ -36,7 +36,7 @@ Json형식으로 WEB-INF/database.setting 파일을 읽음
 샘플 오브젝트 -------------------
 
 	@Table("user")
-	public class User implements Record {
+	public class User implements Record { //레코드를 인터페이스하고,
 		@Key
 		private String id;
 		private String password;
@@ -44,8 +44,11 @@ Json형식으로 WEB-INF/database.setting 파일을 읽음
 		private String nickname;
 		private String gender;
 		private Date timestamp;
+		
+		@Exclude
+		private int count;
 	
-		public String getId() {
+		public String getId() { //게터메소드를 채워줘야댐
 			return id;
 		}
 	
@@ -70,7 +73,8 @@ Json형식으로 WEB-INF/database.setting 파일을 읽음
 		}
 	
 		@Override
-		public void set(Object... params) {
+		public void set(Object... params) {  //오브젝트를 받아서 셋할 수 있게해야함
+										// 필드 개수만큼 오브젝트가 들어옴
 			id = params.length < 1 ? null : (String) params[0];
 			password = params.length < 2 ? null : (String) params[1];
 			email = params.length < 3 ? null : (String) params[2];
