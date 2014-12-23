@@ -5,9 +5,7 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Date;
 
 import easyjdbc.setting.Setting;
 
@@ -31,9 +29,9 @@ public class DAO {
 
 	public Connection getConnection() {
 		Connection con = null;
-		String url = Setting.get("url");
-		String id = Setting.get("id");
-		String pw = Setting.get("password");
+		String url = Setting.get(Setting.URL);
+		String id = Setting.get(Setting.ID);
+		String pw = Setting.get(Setting.PASSWORD);
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
 			con = DriverManager.getConnection(url, id, pw);
@@ -149,20 +147,8 @@ public class DAO {
 	}
 
 	private void setParameters(PreparedStatement pstmt) throws SQLException {
-		Date date;
 		for (int i = 0; i < parameters.size(); i++) {
-			if (parameters.get(i) instanceof String) {
-				String param = (String) parameters.get(i);
-				pstmt.setString(i + 1, param.replaceAll("\\<.*?\\>", "")
-						.replaceAll("BrAkELInE", "<br>"));
-			} else if (parameters.get(i) instanceof Integer) {
-				pstmt.setInt(i + 1, (Integer) parameters.get(i));
-			} else if (parameters.get(i) instanceof Long) {
-				pstmt.setLong(i + 1, (long) parameters.get(i));
-			} else if (parameters.get(i) instanceof Date) {
-				date = (Date) parameters.get(i);
-				pstmt.setTimestamp(i + 1, new Timestamp(date.getTime()));
-			}
+			pstmt.setObject(i+1, parameters.get(i));
 		}
 	}
 }

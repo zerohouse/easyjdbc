@@ -8,6 +8,12 @@ import com.google.gson.stream.JsonReader;
 
 public class Setting {
 
+	public static final String PASSWORD = "password";
+
+	public static final String ID = "id";
+
+	public static final String URL = "url";
+
 	private static Setting setting = new Setting();
 
 	private String url;
@@ -34,11 +40,11 @@ public class Setting {
 
 	public static String get(String type) {
 		switch (type) {
-		case "url":
+		case URL:
 			return setting.url;
-		case "id":
+		case ID:
 			return setting.id;
-		case "password":
+		case PASSWORD:
 			return setting.password;
 		default:
 			return null;
@@ -50,11 +56,11 @@ public class Setting {
 		reader.beginObject();
 		while (reader.hasNext()) {
 			String dbn = reader.nextName();
-			if (dbn.equals("url")) {
+			if (dbn.equals(URL)) {
 				url = reader.nextString();
-			} else if (dbn.equals("id")) {
+			} else if (dbn.equals(ID)) {
 				id = reader.nextString();
-			} else if (dbn.equals("password")) {
+			} else if (dbn.equals(PASSWORD)) {
 				password = reader.nextString();
 			}
 		}
