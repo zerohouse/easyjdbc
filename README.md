@@ -1,6 +1,8 @@
 짜증나는 JDBC 정리하기.
 ===========
 
+[a link](https://github.com/user/repo/blob/branch/other_file.md)
+
 Json형식으로 WEB-INF/database.setting 파일을 읽음
 
 	{
