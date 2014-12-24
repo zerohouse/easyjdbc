@@ -50,7 +50,7 @@ public class DBMethods {
 		List<T> result = new ArrayList<T>();
 		Table table = cLass.getAnnotation(Table.class);
 		DAO dao = new DAO();
-		String sql = "select * from " + table.value() + " " + table.defaultCondition();
+		String sql = "select * from " + table.value() + " where " + table.defaultCondition();
 		dao.setSql(sql);
 		dao.setResultSize(excludeNotThisDB(cLass).size());
 		ArrayList<ArrayList<Object>> sqlArray = dao.getRecords();
@@ -82,7 +82,7 @@ public class DBMethods {
 		DAO dao = new DAO();
 		String sql = "select * from " + table.value();
 		if (condition != null)
-			sql += " " + condition;
+			sql += " where " + condition;
 		dao.setSql(sql);
 		dao.setResultSize(excludeNotThisDB(cLass).size());
 		ArrayList<ArrayList<Object>> sqlArray = dao.getRecords();
