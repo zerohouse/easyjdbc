@@ -10,14 +10,13 @@ import java.util.List;
 import org.junit.Test;
 
 import easyjdbc.dao.DBMethods;
-import easyjdbc.dao.Record;
 
 public class UserTest {
 
 	@Test
 	public void insertTest() {
 		User user = new User();
-		user.set("zz", "ss", "d",",","",new Date());
+		user.set("zssz", "ss", "d",",","",new Date());
 		DBMethods.insert(user);
 	}
 
@@ -36,9 +35,9 @@ public class UserTest {
 
 	@Test
 	public void getTest() {
-		User user = (User) DBMethods.get(User.class, "zz");
+		User user = DBMethods.get(User.class, "zz");
 		assertNotNull(user);
-		List<Record> list = DBMethods.getList(User.class, "zerohouse");
+		List<User> list = DBMethods.getList(User.class, "zerohouse");
 		System.out.println(list);
 		System.out.println(user);
 	}

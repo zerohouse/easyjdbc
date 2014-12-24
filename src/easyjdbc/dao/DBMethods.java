@@ -45,8 +45,9 @@ public class DBMethods {
 		return dao.doQuery();
 	}
 
-	public static List<Record> getList(Class<?> cLass) {
-		List<Record> result = new ArrayList<Record>();
+	@SuppressWarnings("unchecked")
+	public static <T> List<T> getList(Class<T> cLass) {
+		List<T> result = new ArrayList<T>();
 		Table table = cLass.getAnnotation(Table.class);
 		DAO dao = new DAO();
 		String sql = "select * from " + table.value() + " " + table.defaultCondition();
@@ -63,7 +64,7 @@ public class DBMethods {
 					continue;
 				eachInstance = cLass.getConstructor().newInstance();
 				cLass.getMethod("set", Object[].class).invoke(eachInstance, (Object) next.toArray());
-				result.add((Record) eachInstance);
+				result.add((T) eachInstance);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -73,9 +74,10 @@ public class DBMethods {
 		return result;
 	}
 
-	public static List<Record> getList(Class<?> cLass,
+	@SuppressWarnings("unchecked")
+	public static <T> List<T> getList(Class<T> cLass,
 			String condition) {
-		List<Record> result = new ArrayList<Record>();
+		List<T> result = new ArrayList<T>();
 		Table table = cLass.getAnnotation(Table.class);
 		DAO dao = new DAO();
 		String sql = "select * from " + table.value();
@@ -94,7 +96,7 @@ public class DBMethods {
 					continue;
 				eachInstance = cLass.getConstructor().newInstance();
 				cLass.getMethod("set", Object[].class).invoke(eachInstance, (Object) next.toArray());
-				result.add((Record) eachInstance);
+				result.add((T) eachInstance);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -104,7 +106,8 @@ public class DBMethods {
 		return result;
 	}
 
-	public static <T> Object get(Class<?> cLass, Object primaryKey) {
+	@SuppressWarnings("unchecked")
+	public static <T> T get(Class<T> cLass, Object primaryKey) {
 		Table anotation = cLass.getAnnotation(Table.class);
 		Field primaryField = getPrimaryField(cLass);
 		DAO dao = new DAO();
@@ -119,7 +122,7 @@ public class DBMethods {
 		try {
 			eachInstance = cLass.getConstructor().newInstance();
 			cLass.getMethod("set", Object[].class).invoke(eachInstance, (Object) record.toArray());
-			return cLass.cast(eachInstance);
+			return (T) eachInstance;
 		} catch (Exception e) {
 			e.printStackTrace();
 			return null;
