@@ -46,42 +46,18 @@ public class DBMethods {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static <T> List<T> getList(Class<T> cLass) {
+	public static <T> List<T> getList(Class<T> cLass, String... condition) {
 		List<T> result = new ArrayList<T>();
 		Table table = cLass.getAnnotation(Table.class);
 		DAO dao = new DAO();
-		String sql = "select * from " + table.value() + " where " + table.defaultCondition();
-		dao.setSql(sql);
-		List<Field> excludesFields = excludeNotThisDB(cLass);
-		dao.setResultSize(excludesFields.size());
-		ArrayList<ArrayList<Object>> sqlArray = dao.getRecords();
-		Iterator<ArrayList<Object>> iterator = sqlArray.iterator();
-		Object eachInstance;
-		ArrayList<Object> next;
-		while (iterator.hasNext()) {
-			try {
-				next = iterator.next();
-				if (next.size() == 0)
-					continue;
-				eachInstance = setRecords(cLass, excludesFields, next);
-				result.add((T) eachInstance);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-		if (result.size() == 0)
-			return null;
-		return result;
-	}
-
-	@SuppressWarnings("unchecked")
-	public static <T> List<T> getList(Class<T> cLass, String condition) {
-		List<T> result = new ArrayList<T>();
-		Table table = cLass.getAnnotation(Table.class);
-		DAO dao = new DAO();
+		String defaultCondition = table.defaultCondition();
 		String sql = "select * from " + table.value();
-		if (condition != null)
-			sql += " where " + condition;
+
+		if (condition.length > 0)
+			addCondition(sql, condition);
+		else if (defaultCondition != null)
+			sql += " where " + table.defaultCondition();
+
 		dao.setSql(sql);
 		List<Field> excludesFields = excludeNotThisDB(cLass);
 		dao.setResultSize(excludesFields.size());
@@ -105,34 +81,22 @@ public class DBMethods {
 		return result;
 	}
 
-	@SuppressWarnings("unchecked")
-	public static <T> T get(Class<T> cLass, Object primaryKey) {
-		Table anotation = cLass.getAnnotation(Table.class);
-		Field primaryField = getPrimaryField(cLass);
-		DAO dao = new DAO();
-		dao.setSql("select * from " + anotation.value() + " where " + primaryField.getName() + "=?");
-		dao.addParameter(primaryKey);
-		List<Field> excludesFields = excludeNotThisDB(cLass);
-		dao.setResultSize(excludesFields.size());
-		ArrayList<Object> record = dao.getRecord();
-		Object eachInstance;
-		if (record.size() == 0)
-			return null;
-		try {
-			eachInstance = setRecords(cLass, excludesFields, record);
-			return (T) eachInstance;
-		} catch (Exception e) {
-			e.printStackTrace();
-			return null;
+	private static void addCondition(String sql, String[] condition) {
+		sql += " where " + condition[0];
+		for (int i = 1; i < condition.length; i++) {
+			sql += " and " + condition[i];
 		}
 	}
 
 	@SuppressWarnings("unchecked")
-	public static <T> T get(Class<T> cLass, Object primaryKey, String condition) {
+	public static <T> T get(Class<T> cLass, Object primaryKey, String... condition) {
 		Table anotation = cLass.getAnnotation(Table.class);
 		Field primaryField = getPrimaryField(cLass);
 		DAO dao = new DAO();
-		dao.setSql("select * from " + anotation.value() + " where " + primaryField.getName() + "=? and " + condition);
+		String sql = "select * from " + anotation.value() + " where " + primaryField.getName() + "=?";
+		if (condition.length > 0)
+			addCondition(sql, condition);
+		dao.setSql(sql);
 		dao.addParameter(primaryKey);
 		List<Field> excludesFields = excludeNotThisDB(cLass);
 		dao.setResultSize(excludesFields.size());
