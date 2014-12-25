@@ -3,20 +3,28 @@
 
 [easyjdbc-0.0.1.jar](http://mylikenews.com/easyjdbc-0.0.1.jar)
 
+	<dependency>
+		<groupId>easy</groupId>
+		<artifactId>easyjdbc</artifactId>
+		<version>0.0.1</version>
+		<scope>system</scope>
+		<systemPath>${basedir}/lib/easyjdbc-0.0.1.jar</systemPath>
+
 Json형식으로 WEB-INF/database.setting 파일을 읽음
 
 	{
 		"url" : "Database URL", // 데이터 베이스 URL
 		"id" : "Database ID", // 데이터베이스 Id
-		"password" : "Database Password" //데이터 베이스 패스워드!
+		"password" : "Database Password" //데이터 베이스 패스워드
 	}
 
 오브젝트 --------------
 
-	1. implemets Record
-	2. 각 필드명 = DB의 필드명과 일치
-	3. @Table어노테이션으로 테이블명 지정
-	4. @Key어노케이션으로 프라이머리 키 지정
+	1. 각 필드명 = DB의 필드명과 일치
+	2. @Table어노테이션으로 테이블명 지정
+	3. @Key어노테이션으로 프라이머리 키 지정
+	4. 파라미터가 없는 생성자가 있어야 합니다.
+	5. 각 필드에 대한 게터메소드와 세터메소드가 있어야 합니다.
 
 어노테이션 -------------
 	
@@ -38,7 +46,7 @@ Json형식으로 WEB-INF/database.setting 파일을 읽음
 샘플 오브젝트 -------------------
 
 	@Table("user")
-	public class User implements Record { //레코드를 인터페이스하고,
+	public class User  {
 		@Key
 		private String id;
 		private String password;
@@ -49,41 +57,56 @@ Json형식으로 WEB-INF/database.setting 파일을 읽음
 		
 		@Exclude
 		private int count;
-	
-		public String getId() { //게터메소드를 채워줘야댐
+		
+		public String getId() {  //디비에 사용되는 모든 필드에 대한 게터와 세터가 있어야함
 			return id;
+		}
+	
+		public void setId(String id) {
+			this.id = id;
 		}
 	
 		public String getPassword() {
 			return password;
 		}
 	
+		public void setPassword(String password) {
+			this.password = password;
+		}
+	
 		public String getEmail() {
 			return email;
+		}
+	
+		public void setEmail(String email) {
+			this.email = email;
 		}
 	
 		public String getNickname() {
 			return nickname;
 		}
 	
+		public void setNickname(String nickname) {
+			this.nickname = nickname;
+		}
+	
 		public String getGender() {
 			return gender;
+		}
+	
+		public void setGender(String gender) {
+			this.gender = gender;
 		}
 	
 		public Date getTimestamp() {
 			return timestamp;
 		}
 	
-		@Override
-		public void set(Object... params) {  //오브젝트를 받아서 셋할 수 있게해야함
-										// 필드 개수만큼 오브젝트가 들어옴
-			id = params.length < 1 ? null : (String) params[0];
-			password = params.length < 2 ? null : (String) params[1];
-			email = params.length < 3 ? null : (String) params[2];
-			nickname = params.length < 4 ? null : (String) params[3];
-			gender = params.length < 5 ? null : (String) params[4];
-			timestamp = params.length < 6 ? null : (Date) params[5];
+		public void setTimestamp(Date timestamp) {
+			this.timestamp = timestamp;
 		}
+	
+		
 	}
 	
 사용 방법 ----------------

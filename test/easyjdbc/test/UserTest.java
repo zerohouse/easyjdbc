@@ -1,10 +1,8 @@
 package easyjdbc.test;
 
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
-import java.util.Date;
 import java.util.List;
 
 import org.junit.Test;
@@ -13,24 +11,11 @@ import easyjdbc.dao.DBMethods;
 
 public class UserTest {
 
-	@Test
-	public void insertTest() {
-		User user = new User();
-		user.set("zssz", "ss", "d",",","",new Date());
-		DBMethods.insert(user);
-	}
 
 	@Test
 	public void updateTest() {
 		User user = new User();
 		DBMethods.update(user);
-	}
-
-	@Test
-	public void setTest() {
-		User user = new User();
-		user.set("zz", "ss");
-		assertEquals(user.getId(), "zz");
 	}
 
 	@Test
