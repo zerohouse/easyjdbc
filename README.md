@@ -8,7 +8,8 @@
 		<artifactId>easyjdbc</artifactId>
 		<version>0.0.1</version>
 		<scope>system</scope>
-		<systemPath>${basedir}/lib/easyjdbc-0.0.1.jar</systemPath>
+	   	<systemPath>${basedir}/lib/easyjdbc-0.0.1.jar</systemPath>
+	</dependency>
 
 Json형식으로 WEB-INF/database.setting 파일을 읽음
 

@@ -120,7 +120,7 @@ public class DBMethods {
 		List<Class<?>> fieldTypes = getFieldsType(cLass);
 		for (int i = 0; i < excludedFields.size(); i++) {
 			cLass.getMethod(setterString(excludedFields.get(i).getName()), fieldTypes.get(i)).invoke(eachInstance,
-					fieldTypes.get(i).cast(record.get(i)));
+					record.get(i));
 		}
 
 		return eachInstance;
