@@ -3,6 +3,8 @@ package easyjdbc.test;
 
 import static org.junit.Assert.*;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 import org.junit.Test;
@@ -34,9 +36,18 @@ public class UserTest {
 
 	@Test
 	public void fort() {
-		for (int i = 0; i < 1; i++) {
-			System.out.println("1");
+		System.out.println(DBMethods.getList(Schedule.class,"userId=? and date=?", "zerohouse", "2014-12-12"));
+	}
+	
+	public static Date parseDate(String format, Object object) {
+		Date date = null;
+		SimpleDateFormat datetime = new SimpleDateFormat(format);
+		try {
+			date = datetime.parse(object.toString());
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
+		return date;
 	}
 
 }
