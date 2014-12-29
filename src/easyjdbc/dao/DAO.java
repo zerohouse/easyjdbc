@@ -27,7 +27,7 @@ public class DAO {
 		parameters.add(parameter);
 	}
 
-	public Connection getConnection() {
+	public static Connection getConnection() {
 		Connection con = null;
 		String url = Setting.get(Setting.URL);
 		String id = Setting.get(Setting.ID);
@@ -48,7 +48,7 @@ public class DAO {
 		try {
 			conn = getConnection();
 			pstmt = conn.prepareStatement(sql);
-			setParameters(pstmt);
+			setParameters(parameters,pstmt);
 			return pstmt.execute();
 
 		} catch (SQLException e) {
@@ -77,7 +77,7 @@ public class DAO {
 		try {
 			conn = getConnection();
 			pstmt = conn.prepareStatement(sql);
-			setParameters(pstmt);
+			setParameters(parameters, pstmt);
 			rs = pstmt.executeQuery();
 			if (rs.next()) {
 				for (int i = 0; i < resultSize; i++) {
@@ -115,7 +115,7 @@ public class DAO {
 		try {
 			conn = getConnection();
 			pstmt = conn.prepareStatement(sql);
-			setParameters(pstmt);
+			setParameters(parameters, pstmt);
 			rs = pstmt.executeQuery();
 			while (rs.next()) {
 				record = new ArrayList<Object>();
@@ -146,7 +146,7 @@ public class DAO {
 		return result;
 	}
 
-	private void setParameters(PreparedStatement pstmt) throws SQLException {
+	static void setParameters(ArrayList<Object> parameters, PreparedStatement pstmt) throws SQLException {
 		for (int i = 0; i < parameters.size(); i++) {
 			pstmt.setObject(i+1, parameters.get(i));
 		}

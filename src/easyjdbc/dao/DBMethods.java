@@ -2,6 +2,10 @@ package easyjdbc.dao;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -43,6 +47,68 @@ public class DBMethods {
 		dao.setSql("insert into " + tableName + " (" + fieldsString + ") values(" + valueString + ")");
 
 		return dao.doQuery();
+	}
+
+	public static Object insertAndGetPrimaryKey(Object record) {
+		Table anotation = record.getClass().getAnnotation(Table.class);
+		String tableName = anotation.value();
+		List<Field> fields = excludeNotThisDB(record.getClass());
+
+		String fieldsString = "";
+		String valueString = "";
+		Object param;
+		ArrayList<Object> params = new ArrayList<Object>();
+
+		for (int i = 0; i < fields.size(); i++) {
+			try {
+				param = getFieldObject(fields.get(i).getName(), record);
+				if (param != null) {
+					fieldsString += fields.get(i).getName() + ",";
+					valueString += "?,";
+					params.add(param);
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+
+		fieldsString = fieldsString.substring(0, fieldsString.length() - 1);
+		valueString = valueString.substring(0, valueString.length() - 1);
+
+		PreparedStatement pstmt = null;
+		Connection conn = null;
+		ResultSet rs = null;
+
+		try {
+			conn = DAO.getConnection();
+			pstmt = conn.prepareStatement("insert into " + tableName + " (" + fieldsString + ") values(" + valueString + ");");
+			DAO.setParameters(params, pstmt);
+			pstmt.execute();
+			pstmt = conn.prepareStatement("SELECT LAST_INSERT_ID();");
+			rs = pstmt.executeQuery();
+			if (rs.next())
+				return rs.getObject(1);
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			if (pstmt != null)
+				try {
+					pstmt.close();
+				} catch (SQLException sqle) {
+				}
+			if (conn != null)
+				try {
+					conn.close();
+				} catch (SQLException sqle) {
+				}
+			if (rs != null)
+				try {
+					conn.close();
+				} catch (SQLException sqle) {
+				}
+		}
+		return rs;
 	}
 
 	public static <T> List<T> getList(Class<T> cLass) {
