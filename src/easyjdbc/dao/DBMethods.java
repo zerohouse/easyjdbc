@@ -250,6 +250,18 @@ public class DBMethods {
 		return dao.doQuery();
 	}
 
+	public static boolean delete(Class<?> cLass, String whereClause, Object... obj) {
+		DAO dao = new DAO();
+		String tableName = cLass.getAnnotation(Table.class).value();
+
+		String sql = "delete from " + tableName + " where " + whereClause;
+
+		dao.setSql(sql);
+		for (int i = 0; i < obj.length; i++)
+			dao.addParameter(obj[i]);
+		return dao.doQuery();
+	}
+
 	public static boolean delete(Object record, String whereClause) {
 		DAO dao = new DAO();
 		Class<?> cLass = record.getClass();
