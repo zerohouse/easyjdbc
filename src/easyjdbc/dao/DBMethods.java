@@ -11,7 +11,6 @@ import java.util.Iterator;
 import java.util.List;
 
 import easyjdbc.annotation.Exclude;
-import easyjdbc.annotation.Key;
 import easyjdbc.annotation.Table;
 
 public class DBMethods {
@@ -167,17 +166,17 @@ public class DBMethods {
 		return result;
 	}
 
-	public static <T> T get(Class<T> cLass, Object primaryKey) {
+	public static <T> T get(Class<T> cLass, Object... primaryKey) {
 		Table anotation = cLass.getAnnotation(Table.class);
-		Field primaryField = getPrimaryField(cLass);
+		PrimaryFields primaryField = getPrimaryField(cLass);
 		DAO dao = new DAO();
-		String sql = "select * from " + anotation.value() + " where " + primaryField.getName() + "=?";
+		String sql = "select * from " + anotation.value() + " where " + primaryField.getCondition();
 		dao.setSql(sql);
 		dao.addParameter(primaryKey);
 		return get(cLass, dao);
 	}
 
-	public static <T> T get(Class<T> cLass, String condition, Object... parameters) {
+	public static <T> T getMoreCondition(Class<T> cLass, String condition, Object... parameters) {
 		Table anotation = cLass.getAnnotation(Table.class);
 		DAO dao = new DAO();
 		String sql = "select * from " + anotation.value();
@@ -221,11 +220,11 @@ public class DBMethods {
 	public static boolean update(Object record, String whereClause) {
 		DAO dao = new DAO();
 		String tableName = record.getClass().getAnnotation(Table.class).value();
-		Field primaryField = getPrimaryField(record.getClass());
-		Object primaryKey = getFieldObject(primaryField.getName(), record);
+		PrimaryFields primaryField = getPrimaryField(record.getClass());
+		Object[] primaryKey = primaryField.getParams(record);
 		String fieldsString = addParams(record, dao);
 
-		String sql = "update " + tableName + " set " + fieldsString + " where " + primaryField.getName() + "=?";
+		String sql = "update " + tableName + " set " + fieldsString + " where " + primaryField.getCondition();
 		dao.addParameter(primaryKey);
 
 		if (whereClause != null) {
@@ -239,11 +238,11 @@ public class DBMethods {
 	public static boolean update(Object record) {
 		DAO dao = new DAO();
 		String tableName = record.getClass().getAnnotation(Table.class).value();
-		Field primaryField = getPrimaryField(record.getClass());
-		Object primaryKey = getFieldObject(primaryField.getName(), record);
+		PrimaryFields primaryField = getPrimaryField(record.getClass());
+		Object[] primaryKey = primaryField.getParams(record);
 		String fieldsString = addParams(record, dao);
 
-		String sql = "update " + tableName + " set " + fieldsString + " where " + primaryField.getName() + "=?";
+		String sql = "update " + tableName + " set " + fieldsString + " where " + primaryField.getCondition();
 		dao.addParameter(primaryKey);
 
 		dao.setSql(sql);
@@ -266,10 +265,10 @@ public class DBMethods {
 		DAO dao = new DAO();
 		Class<?> cLass = record.getClass();
 		String tableName = cLass.getAnnotation(Table.class).value();
-		Field primaryField = getPrimaryField(cLass);
-		Object primaryKey = getFieldObject(primaryField.getName(), record);
+		PrimaryFields primaryField = getPrimaryField(cLass);
+		Object[] primaryKey = primaryField.getParams(record);
 
-		String sql = "delete from " + tableName + " where " + primaryField.getName() + "=?";
+		String sql = "delete from " + tableName + " where " + primaryField.getCondition();
 
 		if (whereClause != null) {
 			sql += " and " + whereClause;
@@ -284,10 +283,10 @@ public class DBMethods {
 		DAO dao = new DAO();
 		Class<?> cLass = record.getClass();
 		String tableName = cLass.getAnnotation(Table.class).value();
-		Field primaryField = getPrimaryField(cLass);
-		Object primaryKey = getFieldObject(primaryField.getName(), record);
+		PrimaryFields primaryField = getPrimaryField(cLass);
+		Object[] primaryKey = primaryField.getParams(record);
 
-		String sql = "delete from " + tableName + " where " + primaryField.getName() + "=?";
+		String sql = "delete from " + tableName + " where " + primaryField.getCondition();
 
 		dao.setSql(sql);
 		dao.addParameter(primaryKey);
@@ -313,16 +312,13 @@ public class DBMethods {
 		return fieldsString;
 	}
 
-	private static Field getPrimaryField(Class<?> cLass) {
+	private static PrimaryFields getPrimaryField(Class<?> cLass) {
 		List<Field> fields = excludeNotThisDB(cLass);
-		int columnSize = fields.size();
-		for (int i = 0; i < columnSize; i++)
-			if (fields.get(i).isAnnotationPresent(Key.class))
-				return fields.get(i);
-		return null;
+		PrimaryFields result = new PrimaryFields(fields);
+		return result;
 	}
 
-	private static Object getFieldObject(String fieldName, Object record) {
+	static Object getFieldObject(String fieldName, Object record) {
 		try {
 			return record.getClass().getMethod(getterString(fieldName), (Class<?>[]) null).invoke(record);
 		} catch (Exception e) {

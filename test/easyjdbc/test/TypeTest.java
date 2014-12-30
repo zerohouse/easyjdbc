@@ -16,5 +16,11 @@ public class TypeTest {
 		t.setColor("#000000");
 		System.out.println(DBMethods.insertAndGetPrimaryKey(t));
 	}
+	
+	@Test
+	public void getTest() throws SQLException {
+		System.out.println(DBMethods.get(Type.class, 30));
+	}
+	
 
 }

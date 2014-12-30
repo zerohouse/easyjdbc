@@ -23,8 +23,9 @@ public class DAO {
 		this.resultSize = resultSize;
 	}
 
-	public void addParameter(Object parameter) {
-		parameters.add(parameter);
+	public void addParameter(Object... parameter) {
+		for (int i = 0; i < parameter.length; i++)
+			parameters.add(parameter[i]);
 	}
 
 	public static Connection getConnection() {
@@ -41,14 +42,13 @@ public class DAO {
 		return con;
 	}
 
-
 	public boolean doQuery() {
 		PreparedStatement pstmt = null;
 		Connection conn = null;
 		try {
 			conn = getConnection();
 			pstmt = conn.prepareStatement(sql);
-			setParameters(parameters,pstmt);
+			setParameters(parameters, pstmt);
 			return pstmt.execute();
 
 		} catch (SQLException e) {
@@ -76,6 +76,7 @@ public class DAO {
 		ResultSet rs = null;
 		try {
 			conn = getConnection();
+			System.out.println(sql);
 			pstmt = conn.prepareStatement(sql);
 			setParameters(parameters, pstmt);
 			rs = pstmt.executeQuery();
@@ -148,7 +149,7 @@ public class DAO {
 
 	static void setParameters(ArrayList<Object> parameters, PreparedStatement pstmt) throws SQLException {
 		for (int i = 0; i < parameters.size(); i++) {
-			pstmt.setObject(i+1, parameters.get(i));
+			pstmt.setObject(i + 1, parameters.get(i));
 		}
 	}
 }
