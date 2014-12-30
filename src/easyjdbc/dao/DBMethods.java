@@ -11,23 +11,22 @@ import java.util.Iterator;
 import java.util.List;
 
 import easyjdbc.annotation.Exclude;
+import easyjdbc.annotation.Key;
 import easyjdbc.annotation.Table;
 
 public class DBMethods {
 
 	private DBMethods() {
 	}
+	
 
-	public static boolean insert(Object record) {
-		Table anotation = record.getClass().getAnnotation(Table.class);
-		String tableName = anotation.value();
+	public static boolean insertIfExistUpdate(Object record) {
 		List<Field> fields = excludeNotThisDB(record.getClass());
-
-		DAO dao = new DAO();
-		String fieldsString = "";
+		String tableName =  record.getClass().getAnnotation(Table.class).value();
 		String valueString = "";
+		String fieldsString = "";
+		DAO dao = new DAO();
 		Object param;
-
 		for (int i = 0; i < fields.size(); i++) {
 			try {
 				param = getFieldObject(fields.get(i).getName(), record);
@@ -43,7 +42,74 @@ public class DBMethods {
 
 		fieldsString = fieldsString.substring(0, fieldsString.length() - 1);
 		valueString = valueString.substring(0, valueString.length() - 1);
-		dao.setSql("insert into " + tableName + " (" + fieldsString + ") values(" + valueString + ")");
+		String sql ="insert into " + tableName + " (" + fieldsString + ") values(" + valueString + ")";
+		String updateString = addParams(record, dao);
+		sql += " on duplicate key update "  + updateString;
+		
+		dao.setSql(sql);
+		System.out.println(sql);
+		return dao.doQuery();
+	
+	}
+	
+	public boolean insertIfNotExist(Object record) {
+		Table anotation = record.getClass().getAnnotation(Table.class);
+		String tableName = anotation.value();
+		List<Field> fields = excludeNotThisDB(record.getClass());
+
+		DAO dao = new DAO();
+		Object param;
+
+		String valueString = "";
+		String fieldsString = "";
+		for (int i = 0; i < fields.size(); i++) {
+			try {
+				param = getFieldObject(fields.get(i).getName(), record);
+				if (param != null) {
+					fieldsString += fields.get(i).getName() + ",";
+					valueString += "?,";
+					dao.addParameter(param);
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+
+		fieldsString = fieldsString.substring(0, fieldsString.length() - 1);
+		valueString = valueString.substring(0, valueString.length() - 1);
+		String sql ="insert ignore into " + tableName + " (" + fieldsString + ") values(" + valueString + ")";
+		dao.setSql(sql);
+
+		return dao.doQuery();
+	}
+
+	public static boolean insert(Object record) {
+		Table anotation = record.getClass().getAnnotation(Table.class);
+		String tableName = anotation.value();
+		List<Field> fields = excludeNotThisDB(record.getClass());
+
+		DAO dao = new DAO();
+		Object param;
+
+		String valueString = "";
+		String fieldsString = "";
+		for (int i = 0; i < fields.size(); i++) {
+			try {
+				param = getFieldObject(fields.get(i).getName(), record);
+				if (param != null) {
+					fieldsString += fields.get(i).getName() + ",";
+					valueString += "?,";
+					dao.addParameter(param);
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+
+		fieldsString = fieldsString.substring(0, fieldsString.length() - 1);
+		valueString = valueString.substring(0, valueString.length() - 1);
+		String sql ="insert into " + tableName + " (" + fieldsString + ") values(" + valueString + ")";
+		dao.setSql(sql);
 
 		return dao.doQuery();
 	}
@@ -244,7 +310,7 @@ public class DBMethods {
 
 		String sql = "update " + tableName + " set " + fieldsString + " where " + primaryField.getCondition();
 		dao.addParameter(primaryKey);
-
+		System.out.println(sql);
 		dao.setSql(sql);
 		return dao.doQuery();
 	}
@@ -298,6 +364,8 @@ public class DBMethods {
 		List<Field> fields = excludeNotThisDB(field.getClass());
 		Object param;
 		for (int i = 0; i < fields.size(); i++) {
+			if(fields.get(i).isAnnotationPresent(Key.class))
+				continue;
 			try {
 				param = getFieldObject(fields.get(i).getName(), field);
 				if (param != null) {
@@ -353,5 +421,13 @@ public class DBMethods {
 		}
 		return result;
 	}
+
+
+
+
+
+
+
+	
 
 }
