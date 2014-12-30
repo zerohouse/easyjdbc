@@ -23,7 +23,7 @@ public class DateHeaderTest {
 		d.setEmoticon("zer");
 		
 		DBMethods.insertIfExistUpdate(d);
-		DBMethods.insertIfNotExist(d)
+		DBMethods.insertIfNotExist(d);
 	}
 
 }

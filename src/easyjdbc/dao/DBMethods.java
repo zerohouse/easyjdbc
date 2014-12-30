@@ -52,7 +52,7 @@ public class DBMethods {
 	
 	}
 	
-	public boolean insertIfNotExist(Object record) {
+	public static boolean insertIfNotExist(Object record) {
 		Table anotation = record.getClass().getAnnotation(Table.class);
 		String tableName = anotation.value();
 		List<Field> fields = excludeNotThisDB(record.getClass());
