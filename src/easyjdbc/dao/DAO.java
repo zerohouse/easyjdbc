@@ -76,7 +76,6 @@ public class DAO {
 		ResultSet rs = null;
 		try {
 			conn = getConnection();
-			System.out.println(sql);
 			pstmt = conn.prepareStatement(sql);
 			setParameters(parameters, pstmt);
 			rs = pstmt.executeQuery();
