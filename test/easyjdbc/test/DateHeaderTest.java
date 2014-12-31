@@ -17,13 +17,12 @@ public class DateHeaderTest {
 	@Test
 	public void insertTest() {
 		DateHeader d = new DateHeader();
-		d.setDate(Util.parseDate("yyyy-MM-dd", "2014-12-31"));
+		d.setDate(Util.parseDate("yyyy-MM-dd", "2014-12-19"));
 		d.setUserId("zerohouse");
 		d.setHeader("235253");
 		d.setEmoticon("zer");
 		
-		DBMethods.insertIfExistUpdate(d);
-		DBMethods.insertIfNotExist(d);
+		DBMethods.insert(d);
 	}
 
 }

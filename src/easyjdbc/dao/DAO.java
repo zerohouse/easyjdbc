@@ -49,7 +49,8 @@ public class DAO {
 			conn = getConnection();
 			pstmt = conn.prepareStatement(sql);
 			setParameters(parameters, pstmt);
-			return pstmt.execute();
+			pstmt.execute();
+			return pstmt.getUpdateCount()==1;
 
 		} catch (SQLException e) {
 			e.printStackTrace();

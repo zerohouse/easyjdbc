@@ -47,7 +47,6 @@ public class DBMethods {
 		sql += " on duplicate key update "  + updateString;
 		
 		dao.setSql(sql);
-		System.out.println(sql);
 		return dao.doQuery();
 	
 	}
@@ -310,7 +309,6 @@ public class DBMethods {
 
 		String sql = "update " + tableName + " set " + fieldsString + " where " + primaryField.getCondition();
 		dao.addParameter(primaryKey);
-		System.out.println(sql);
 		dao.setSql(sql);
 		return dao.doQuery();
 	}
