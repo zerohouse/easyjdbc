@@ -18,11 +18,10 @@ public class DBMethods {
 
 	private DBMethods() {
 	}
-	
 
 	public static boolean insertIfExistUpdate(Object record) {
 		List<Field> fields = excludeNotThisDB(record.getClass());
-		String tableName =  record.getClass().getAnnotation(Table.class).value();
+		String tableName = record.getClass().getAnnotation(Table.class).value();
 		String valueString = "";
 		String fieldsString = "";
 		DAO dao = new DAO();
@@ -42,15 +41,15 @@ public class DBMethods {
 
 		fieldsString = fieldsString.substring(0, fieldsString.length() - 1);
 		valueString = valueString.substring(0, valueString.length() - 1);
-		String sql ="insert into " + tableName + " (" + fieldsString + ") values(" + valueString + ")";
+		String sql = "insert into " + tableName + " (" + fieldsString + ") values(" + valueString + ")";
 		String updateString = addParams(record, dao);
-		sql += " on duplicate key update "  + updateString;
-		
+		sql += " on duplicate key update " + updateString;
+
 		dao.setSql(sql);
 		return dao.doQuery();
-	
+
 	}
-	
+
 	public static boolean insertIfNotExist(Object record) {
 		Table anotation = record.getClass().getAnnotation(Table.class);
 		String tableName = anotation.value();
@@ -76,41 +75,50 @@ public class DBMethods {
 
 		fieldsString = fieldsString.substring(0, fieldsString.length() - 1);
 		valueString = valueString.substring(0, valueString.length() - 1);
-		String sql ="insert ignore into " + tableName + " (" + fieldsString + ") values(" + valueString + ")";
+		String sql = "insert ignore into " + tableName + " (" + fieldsString + ") values(" + valueString + ")";
 		dao.setSql(sql);
 
 		return dao.doQuery();
 	}
 
-	public static boolean insert(Object record) {
-		Table anotation = record.getClass().getAnnotation(Table.class);
-		String tableName = anotation.value();
-		List<Field> fields = excludeNotThisDB(record.getClass());
-
+	public static boolean insert(Object... records) {
 		DAO dao = new DAO();
 		Object param;
+		String valueString;
+		String fieldsString;
+		String tableName;
+		String sql;
+		List<String> sqls = new ArrayList<String>();
+		List<Field> fields;
+		List<Object> params;
+		List<List<Object>> parameterArrays = new ArrayList<List<Object>>();
+		for (int j = 0; j < records.length; j++) {
+			params = new ArrayList<Object>();
+			valueString = "";
+			fieldsString = "";
+			tableName = records[j].getClass().getAnnotation(Table.class).value();
+			fields = excludeNotThisDB(records[j].getClass());
 
-		String valueString = "";
-		String fieldsString = "";
-		for (int i = 0; i < fields.size(); i++) {
-			try {
-				param = getFieldObject(fields.get(i).getName(), record);
-				if (param != null) {
-					fieldsString += fields.get(i).getName() + ",";
-					valueString += "?,";
-					dao.addParameter(param);
+			for (int i = 0; i < fields.size(); i++) {
+				try {
+					param = getFieldObject(fields.get(i).getName(), records[j]);
+					if (param != null) {
+						fieldsString += fields.get(i).getName() + ",";
+						valueString += "?,";
+						params.add(param);
+					}
+				} catch (Exception e) {
+					e.printStackTrace();
 				}
-			} catch (Exception e) {
-				e.printStackTrace();
 			}
+
+			fieldsString = fieldsString.substring(0, fieldsString.length() - 1);
+			valueString = valueString.substring(0, valueString.length() - 1);
+			sql = "insert into " + tableName + " (" + fieldsString + ") values(" + valueString + ")";
+			sqls.add(sql);
+			parameterArrays.add(params);
 		}
-
-		fieldsString = fieldsString.substring(0, fieldsString.length() - 1);
-		valueString = valueString.substring(0, valueString.length() - 1);
-		String sql ="insert into " + tableName + " (" + fieldsString + ") values(" + valueString + ")";
-		dao.setSql(sql);
-
-		return dao.doQuery();
+		return dao.doQueries(sqls, parameterArrays);
 	}
 
 	public static Object insertAndGetPrimaryKey(Object record) {
@@ -362,7 +370,7 @@ public class DBMethods {
 		List<Field> fields = excludeNotThisDB(field.getClass());
 		Object param;
 		for (int i = 0; i < fields.size(); i++) {
-			if(fields.get(i).isAnnotationPresent(Key.class))
+			if (fields.get(i).isAnnotationPresent(Key.class))
 				continue;
 			try {
 				param = getFieldObject(fields.get(i).getName(), field);
@@ -386,6 +394,7 @@ public class DBMethods {
 
 	static Object getFieldObject(String fieldName, Object record) {
 		try {
+			System.out.println(fieldName + record);
 			return record.getClass().getMethod(getterString(fieldName), (Class<?>[]) null).invoke(record);
 		} catch (Exception e) {
 			return null;
@@ -419,13 +428,5 @@ public class DBMethods {
 		}
 		return result;
 	}
-
-
-
-
-
-
-
-	
 
 }

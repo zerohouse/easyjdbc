@@ -6,6 +6,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.List;
 
 import easyjdbc.setting.Setting;
 
@@ -13,7 +14,7 @@ public class DAO {
 
 	private String sql;
 	private Integer resultSize;
-	private ArrayList<Object> parameters = new ArrayList<Object>();
+	private List<Object> parameters = new ArrayList<Object>();
 
 	public void setSql(String sql) {
 		this.sql = sql;
@@ -50,7 +51,38 @@ public class DAO {
 			pstmt = conn.prepareStatement(sql);
 			setParameters(parameters, pstmt);
 			pstmt.execute();
-			return pstmt.getUpdateCount()==1;
+			return pstmt.getUpdateCount() == 1;
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+
+		} finally {
+			if (pstmt != null)
+				try {
+					pstmt.close();
+				} catch (SQLException sqle) {
+				}
+			if (conn != null)
+				try {
+					conn.close();
+				} catch (SQLException sqle) {
+				}
+		}
+		return false;
+	}
+
+	public boolean doQueries(List<String> sqls, List<List<Object>> parameterArrays) {
+		PreparedStatement pstmt = null;
+		Connection conn = null;
+		try {
+			conn = getConnection();
+
+			for (int i = 0; i < sqls.size(); i++) {
+				pstmt = conn.prepareStatement(sqls.get(i));
+				setParameters(parameterArrays.get(i), pstmt);
+				pstmt.execute();
+			}
+			return pstmt.getUpdateCount() == 1;
 
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -147,7 +179,7 @@ public class DAO {
 		return result;
 	}
 
-	static void setParameters(ArrayList<Object> parameters, PreparedStatement pstmt) throws SQLException {
+	static void setParameters(List<Object> parameters, PreparedStatement pstmt) throws SQLException {
 		for (int i = 0; i < parameters.size(); i++) {
 			pstmt.setObject(i + 1, parameters.get(i));
 		}
