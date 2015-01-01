@@ -12,13 +12,6 @@ import easyjdbc.setting.Setting;
 
 public class MySql implements DAO {
 
-	private List<Object> parameters = new ArrayList<Object>();
-
-	public void addParameter(Object... parameter) {
-		for (int i = 0; i < parameter.length; i++)
-			parameters.add(parameter[i]);
-	}
-
 	public static Connection getConnection() {
 		Connection con = null;
 		String url = Setting.get(Setting.URL);
@@ -33,13 +26,13 @@ public class MySql implements DAO {
 		return con;
 	}
 
-	public boolean doQuery(String sql) {
+	public boolean doQuery(String sql, List<Object> params) {
 		PreparedStatement pstmt = null;
 		Connection conn = null;
 		try {
 			conn = getConnection();
 			pstmt = conn.prepareStatement(sql);
-			setParameters(parameters, pstmt);
+			setParameters(params, pstmt);
 			pstmt.execute();
 			return pstmt.getUpdateCount() == 1;
 
@@ -68,6 +61,7 @@ public class MySql implements DAO {
 			conn = getConnection();
 
 			for (int i = 0; i < sqls.size(); i++) {
+				System.out.println(sqls.get(i));
 				pstmt = conn.prepareStatement(sqls.get(i));
 				setParameters(parameterArrays.get(i), pstmt);
 				pstmt.execute();
@@ -92,7 +86,7 @@ public class MySql implements DAO {
 		return false;
 	}
 
-	public ArrayList<Object> getRecord(String sql, int resultSize) {
+	public ArrayList<Object> getRecord(String sql, int resultSize, List<Object> params) {
 		ArrayList<Object> result = new ArrayList<Object>();
 		PreparedStatement pstmt = null;
 		Connection conn = null;
@@ -100,7 +94,7 @@ public class MySql implements DAO {
 		try {
 			conn = getConnection();
 			pstmt = conn.prepareStatement(sql);
-			setParameters(parameters, pstmt);
+			setParameters(params, pstmt);
 			rs = pstmt.executeQuery();
 			if (rs.next()) {
 				for (int i = 0; i < resultSize; i++) {
@@ -129,7 +123,7 @@ public class MySql implements DAO {
 		return result;
 	}
 
-	public List<List<Object>> getRecords(String sql, int resultSize) {
+	public List<List<Object>> getRecords(String sql, int resultSize, List<Object> params) {
 		List<List<Object>> result = new ArrayList<List<Object>>();
 		ArrayList<Object> record;
 		PreparedStatement pstmt = null;
@@ -138,7 +132,7 @@ public class MySql implements DAO {
 		try {
 			conn = getConnection();
 			pstmt = conn.prepareStatement(sql);
-			setParameters(parameters, pstmt);
+			setParameters(params, pstmt);
 			rs = pstmt.executeQuery();
 			while (rs.next()) {
 				record = new ArrayList<Object>();
@@ -214,4 +208,5 @@ public class MySql implements DAO {
 		}
 		return result;
 	}
+
 }

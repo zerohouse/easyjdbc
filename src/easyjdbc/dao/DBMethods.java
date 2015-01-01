@@ -21,6 +21,7 @@ public class DBMethods {
 		String valueString = "";
 		String fieldsString = "";
 		DAO dao = DAOfactory.getDAO();
+		List<Object> params = new ArrayList<Object>();
 		Object param;
 		for (int i = 0; i < fields.size(); i++) {
 			try {
@@ -28,7 +29,7 @@ public class DBMethods {
 				if (param != null) {
 					fieldsString += fields.get(i).getName() + ",";
 					valueString += "?,";
-					dao.addParameter(param);
+					params.add(param);
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -38,14 +39,12 @@ public class DBMethods {
 		fieldsString = fieldsString.substring(0, fieldsString.length() - 1);
 		valueString = valueString.substring(0, valueString.length() - 1);
 		String sql = "insert into " + tableName + " (" + fieldsString + ") values(" + valueString + ")";
-		String updateString = addParams(record, dao);
+		String updateString = addParams(record, params);
 		sql += " on duplicate key update " + updateString;
 
-		return dao.doQuery(sql);
+		return dao.doQuery(sql, params);
 
 	}
-
-
 
 	public static boolean insertIfNotExist(Object record) {
 		Table anotation = record.getClass().getAnnotation(Table.class);
@@ -54,7 +53,7 @@ public class DBMethods {
 
 		DAO dao = DAOfactory.getDAO();
 		Object param;
-
+		List<Object> params = new ArrayList<Object>();
 		String valueString = "";
 		String fieldsString = "";
 		for (int i = 0; i < fields.size(); i++) {
@@ -63,7 +62,7 @@ public class DBMethods {
 				if (param != null) {
 					fieldsString += fields.get(i).getName() + ",";
 					valueString += "?,";
-					dao.addParameter(param);
+					params.add(param);
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -74,7 +73,7 @@ public class DBMethods {
 		valueString = valueString.substring(0, valueString.length() - 1);
 		String sql = "insert ignore into " + tableName + " (" + fieldsString + ") values(" + valueString + ")";
 
-		return dao.doQuery(sql);
+		return dao.doQuery(sql, params);
 	}
 
 	public static boolean insert(Object... records) {
@@ -150,7 +149,7 @@ public class DBMethods {
 		parameterArrays.add(params);
 		parameterArrays.add(null);
 		DAO dao = new MySql();
-		
+
 		return dao.doQueriesAndReturnLast(sqls, parameterArrays, 1).get(0);
 	}
 
@@ -163,31 +162,31 @@ public class DBMethods {
 		if (defaultCondition != null)
 			sql += " where " + table.defaultCondition();
 
-		return getList(cLass, sql ,dao);
+		return getList(cLass, sql, dao);
 	}
 
 	public static <T> List<T> getList(Class<T> cLass, String condition, Object... parameters) {
 		Table table = cLass.getAnnotation(Table.class);
-		DAO dao = DAOfactory.getDAO();
 		String defaultCondition = table.defaultCondition();
 		String sql = "select * from " + table.value();
-
+		List<Object> params = new ArrayList<Object>();
 		if (condition != null)
 			sql += " where " + condition;
 		else if (defaultCondition != null)
 			sql += " where " + table.defaultCondition();
 
 		for (int i = 0; i < parameters.length; i++) {
-			dao.addParameter(parameters[i]);
+			params.add(parameters[i]);
 		}
-		return getList(cLass, sql, dao);
+		return getList(cLass, sql, params);
 	}
 
 	@SuppressWarnings("unchecked")
-	private static <T> List<T> getList(Class<T> cLass, String sql, DAO dao) {
+	private static <T> List<T> getList(Class<T> cLass, String sql, List<Object> params) {
 		List<T> result = new ArrayList<T>();
+		DAO dao = DAOfactory.getDAO();
 		List<Field> excludesFields = excludeNotThisDB(cLass);
-		List<List<Object>> sqlArray = dao.getRecords(sql, excludesFields.size());
+		List<List<Object>> sqlArray = dao.getRecords(sql, excludesFields.size(), params);
 		Iterator<List<Object>> iterator = sqlArray.iterator();
 		Object eachInstance;
 		List<Object> next;
@@ -210,27 +209,28 @@ public class DBMethods {
 	public static <T> T get(Class<T> cLass, Object... primaryKey) {
 		Table anotation = cLass.getAnnotation(Table.class);
 		PrimaryFields primaryField = getPrimaryField(cLass);
-		DAO dao = DAOfactory.getDAO();
 		String sql = "select * from " + anotation.value() + " where " + primaryField.getCondition();
-		dao.addParameter(primaryKey);
-		return gets(cLass, sql, dao);
+		List<Object> params = new ArrayList<Object>();
+		params.add(primaryKey);
+		return gets(cLass, sql, params);
 	}
 
 	public static <T> T getMoreCondition(Class<T> cLass, String condition, Object... parameters) {
 		Table anotation = cLass.getAnnotation(Table.class);
-		DAO dao = DAOfactory.getDAO();
 		String sql = "select * from " + anotation.value();
+		List<Object> params = new ArrayList<Object>();
 		if (condition != null)
 			sql += " where " + condition;
 		for (int i = 0; i < parameters.length; i++)
-			dao.addParameter(parameters[i]);
-		return gets(cLass, sql, dao);
+			params.add(parameters[i]);
+		return gets(cLass, sql, params);
 	}
 
 	@SuppressWarnings("unchecked")
-	private static <T> T gets(Class<T> cLass, String sql, DAO dao) {
+	private static <T> T gets(Class<T> cLass, String sql, List<Object> params) {
 		List<Field> excludesFields = excludeNotThisDB(cLass);
-		List<Object> record = dao.getRecord(sql, excludesFields.size());
+		DAO dao = DAOfactory.getDAO();
+		List<Object> record = dao.getRecord(sql, excludesFields.size(), params);
 		Object eachInstance;
 		if (record.size() == 0)
 			return null;
@@ -255,77 +255,71 @@ public class DBMethods {
 		return eachInstance;
 	}
 
-	public static boolean update(Object record, String whereClause) {
+	public static boolean update(Object... record) {
 		DAO dao = DAOfactory.getDAO();
-		String tableName = record.getClass().getAnnotation(Table.class).value();
-		PrimaryFields primaryField = getPrimaryField(record.getClass());
-		Object[] primaryKey = primaryField.getParams(record);
-		String fieldsString = addParams(record, dao);
+		String tableName;
+		PrimaryFields primaryField;
+		Object[] primaryKey;
+		String fieldsString;
+		List<List<Object>> parameterArrays = new ArrayList<List<Object>>();
+		List<Object> params;
+		List<String> sqls = new ArrayList<String>();
+		for (int i = 0; i < record.length; i++) {
+			params = new ArrayList<Object>();
+			tableName = record[i].getClass().getAnnotation(Table.class).value();
+			primaryField = getPrimaryField(record[i].getClass());
+			primaryKey = primaryField.getParams(record[i]);
+			fieldsString = addParams(record[i], params);
 
-		String sql = "update " + tableName + " set " + fieldsString + " where " + primaryField.getCondition();
-		dao.addParameter(primaryKey);
+			sqls.add("update " + tableName + " set " + fieldsString + " where " + primaryField.getCondition());
 
-		if (whereClause != null) {
-			sql += " and " + whereClause;
+			addToArrayList(primaryKey, params);
+			parameterArrays.add(params);
 		}
-
-		return dao.doQuery(sql);
+		return dao.doQueries(sqls, parameterArrays);
 	}
 
-	public static boolean update(Object record) {
-		DAO dao = DAOfactory.getDAO();
-		String tableName = record.getClass().getAnnotation(Table.class).value();
-		PrimaryFields primaryField = getPrimaryField(record.getClass());
-		Object[] primaryKey = primaryField.getParams(record);
-		String fieldsString = addParams(record, dao);
-
-		String sql = "update " + tableName + " set " + fieldsString + " where " + primaryField.getCondition();
-		dao.addParameter(primaryKey);
-		return dao.doQuery(sql);
+	private static void addToArrayList(Object[] array, List<Object> params) {
+		for (int i = 0; i < array.length; i++) {
+			params.add(array[i]);
+		}
 	}
 
-	public static boolean delete(Class<?> cLass, String whereClause, Object... obj) {
+	public static boolean deleteWhere(Class<?> cLass, String whereClause, Object... obj) {
 		DAO dao = DAOfactory.getDAO();
 		String tableName = cLass.getAnnotation(Table.class).value();
 
 		String sql = "delete from " + tableName + " where " + whereClause;
-
-		for (int i = 0; i < obj.length; i++)
-			dao.addParameter(obj[i]);
-		return dao.doQuery(sql);
+		List<Object> params = new ArrayList<Object>();
+		addToArrayList(obj, params);
+		return dao.doQuery(sql, params);
 	}
 
-	public static boolean delete(Object record, String whereClause) {
+	public static boolean delete(Object... record) {
 		DAO dao = DAOfactory.getDAO();
-		Class<?> cLass = record.getClass();
-		String tableName = cLass.getAnnotation(Table.class).value();
-		PrimaryFields primaryField = getPrimaryField(cLass);
-		Object[] primaryKey = primaryField.getParams(record);
-
-		String sql = "delete from " + tableName + " where " + primaryField.getCondition();
-
-		if (whereClause != null) {
-			sql += " and " + whereClause;
+		Class<?> cLass;
+		String tableName;
+		PrimaryFields primaryField;
+		Object[] primaryKey;
+		List<List<Object>> parameterArray = new ArrayList<List<Object>>();
+		List<Object> params;
+		List<String> sqls = new ArrayList<String>();
+		for (int i = 0; i < record.length; i++) {
+			params = new ArrayList<Object>();
+			cLass = record[i].getClass();
+			tableName = cLass.getAnnotation(Table.class).value();
+			primaryField = getPrimaryField(cLass);
+			primaryKey = primaryField.getParams(record[i]);
+			addToArrayList(primaryKey, params);
+			System.out.println(params);
+			sqls.add("delete from " + tableName + " where " + primaryField.getCondition());
+			parameterArray.add(params);
+			
 		}
-
-		dao.addParameter(primaryKey);
-		return dao.doQuery(sql);
+		return dao.doQueries(sqls, parameterArray);
 	}
 
-	public static boolean delete(Object record) {
-		DAO dao = DAOfactory.getDAO();
-		Class<?> cLass = record.getClass();
-		String tableName = cLass.getAnnotation(Table.class).value();
-		PrimaryFields primaryField = getPrimaryField(cLass);
-		Object[] primaryKey = primaryField.getParams(record);
-
-		String sql = "delete from " + tableName + " where " + primaryField.getCondition();
-
-		dao.addParameter(primaryKey);
-		return dao.doQuery(sql);
-	}
-
-	private static String addParams(Object field, DAO dao) {
+	private static String addParams(Object field, List<Object> params) {
 		String fieldsString = "";
 		List<Field> fields = excludeNotThisDB(field.getClass());
 		Object param;
@@ -336,7 +330,7 @@ public class DBMethods {
 				param = getFieldObject(fields.get(i).getName(), field);
 				if (param != null) {
 					fieldsString += fields.get(i).getName() + "=?, ";
-					dao.addParameter(param);
+					params.add(param);
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
