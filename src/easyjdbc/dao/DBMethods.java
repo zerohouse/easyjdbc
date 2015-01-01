@@ -354,7 +354,6 @@ public class DBMethods {
 
 	static Object getFieldObject(String fieldName, Object record) {
 		try {
-			System.out.println(fieldName + record);
 			return record.getClass().getMethod(getterString(fieldName), (Class<?>[]) null).invoke(record);
 		} catch (Exception e) {
 			return null;
