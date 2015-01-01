@@ -10,7 +10,7 @@ import java.util.List;
 
 import easyjdbc.setting.Setting;
 
-public class DAOjdbc implements DAO {
+public class MySql implements DAO {
 
 	private List<Object> parameters = new ArrayList<Object>();
 

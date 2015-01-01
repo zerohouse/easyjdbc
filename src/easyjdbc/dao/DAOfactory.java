@@ -14,7 +14,7 @@ public class DAOfactory {
 	public static DAO getDAO() {
 		if(TEST_DAO!=null)
 			return TEST_DAO;
-		DAO dao = new DAOjdbc();
+		DAO dao = new MySql();
 		return dao;
 	}
 }

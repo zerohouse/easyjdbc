@@ -149,7 +149,7 @@ public class DBMethods {
 		List<List<Object>> parameterArrays = new ArrayList<List<Object>>();
 		parameterArrays.add(params);
 		parameterArrays.add(null);
-		DAO dao = new DAOjdbc();
+		DAO dao = new MySql();
 		
 		return dao.doQueriesAndReturnLast(sqls, parameterArrays, 1).get(0);
 	}
