@@ -19,7 +19,7 @@ public class TypeTest {
 	
 	@Test
 	public void getTest() throws SQLException {
-		System.out.println(DBMethods.get(Type.class, 30));
+		System.out.println(DBMethods.get(Type.class, 9));
 	}
 	
 
