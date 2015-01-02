@@ -26,6 +26,7 @@ public class GetRecordQuery implements Query {
 				record.add(rs.getObject(i + 1));
 			}
 		}
+
 		return record;
 	}
 
@@ -33,5 +34,14 @@ public class GetRecordQuery implements Query {
 		this.resultSize = resultSize;
 		this.sql = sql;
 		this.parameters = parameters;
+	}
+	
+	public GetRecordQuery(int resultSize, String sql, Object... parameters) {
+		this.resultSize = resultSize;
+		this.sql = sql;
+		this.parameters = new ArrayList<Object>();
+		for(int i=0; i<parameters.length; i++){
+			this.parameters.add(parameters[i]);
+		}
 	}
 }

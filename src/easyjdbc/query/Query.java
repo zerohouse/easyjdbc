@@ -6,5 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public interface Query {
+	
 	Object execute(PreparedStatement pstmt, Connection conn, ResultSet rs) throws SQLException;
+
 }

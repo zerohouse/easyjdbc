@@ -1,5 +1,6 @@
 package easyjdbc.query;
 
+import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -34,7 +35,7 @@ public class QueryExecuter {
 		conn = getConnection();
 	}
 
-	public List<Object> execute(Query... sqls) {
+	public List<Object> executeQuries(Query... sqls) {
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
 		try {
@@ -43,6 +44,18 @@ public class QueryExecuter {
 				results.add(sqls[i].execute(pstmt, conn, rs));
 			}
 			return results;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+		}
+		return null;
+	}
+
+	public Object execute(Query sql) {
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		try {
+			return sql.execute(pstmt, conn, rs);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		} finally {
@@ -68,41 +81,137 @@ public class QueryExecuter {
 			}
 	}
 
-	public static boolean insertIfExistUpdate(Object record) {
-		return false;
+	public int insertIfExistUpdate(Object... record) {
+		int doneQueries = 0;
+		Query query;
+		for (int i = 0; i < record.length; i++) {
+			query = QueryFactory.insertIfExistUpdate(record[i]);
+			if ((boolean) execute(query))
+				doneQueries++;
+		}
+		return doneQueries;
 	}
 
-	public static boolean insertIfNotExist(Object record) {
-		return false;
+	public int insertIfNotExist(Object... records) {
+		int doneQueries = 0;
+		Query query;
+		for (int i = 0; i < records.length; i++) {
+			query = QueryFactory.insertIfNotExistIgnore(records[i]);
+			if ((boolean) execute(query))
+				doneQueries++;
+		}
+		return doneQueries;
 	}
 
-	public boolean insert(Object... records) {
-		Query query = QueryFactory.getInsertQuery(records[0]);
-		return (boolean) execute(query).get(0);
+	public int insert(Object... records) {
+		int doneQueries = 0;
+		Query query;
+		for (int i = 0; i < records.length; i++) {
+			query = QueryFactory.getInsertQuery(records[i]);
+			if ((boolean) execute(query))
+				doneQueries++;
+		}
+		return doneQueries;
+	}
+	
+	public int update(Object... records) {
+		int doneQueries = 0;
+		Query query;
+		for (int i = 0; i < records.length; i++) {
+			query = QueryFactory.getUpdateQuery(records[i]);
+			if ((boolean) execute(query))
+				doneQueries++;
+		}
+		return doneQueries;
 	}
 
-	public static Object insertAndGetPrimaryKey(Object record) {
-		return record;
+	public int delete(Object... records) {
+		int doneQueries = 0;
+		Query query;
+		for (int i = 0; i < records.length; i++) {
+			query = QueryFactory.getDeleteQuery(records[i]);
+			if ((boolean) execute(query))
+				doneQueries++;
+		}
+		return doneQueries;
 	}
 
-	public static <T> List<T> getList(Class<T> cLass) {
-		return null;
+
+	@SuppressWarnings("unchecked")
+	public Object insertAndGetPrimaryKey(Object record) {
+		Query insert = QueryFactory.getInsertQuery(record);
+		Query getPrimaryKey = new GetRecordQuery(1, "SELECT LAST_INSERT_ID();");
+		if (!(boolean) execute(insert))
+			return null;
+		return ((List<Object>) execute(getPrimaryKey)).get(0);
+	}
+	
+
+	@SuppressWarnings("unchecked")
+	public <T> List<T> getList(Class<T> cLass) {
+		List<T> result = new ArrayList<T>();
+		Query query = QueryFactory.getRecordsQuery(cLass, null);
+		List<List<Object>> records = (List<List<Object>>) execute(query);
+		List<Field> fields = QueryFactory.excludeNotThisDB(cLass);
+		records.forEach(record -> {
+			Object eachInstance;
+			try {
+				eachInstance = cLass.getConstructor().newInstance();
+				for (int i = 0; i < record.size(); i++) {
+					String methodName = setterString(fields.get(i).getName());
+					cLass.getMethod(methodName, fields.get(i).getType()).invoke(eachInstance, record.get(i));
+				}
+				result.add((T) eachInstance);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		});
+		return result;
 	}
 
-	public static <T> List<T> getList(Class<T> cLass, String condition, Object... parameters) {
-		return null;
+	@SuppressWarnings("unchecked")
+	public <T> List<T> getList(Class<T> cLass, String condition, Object... parameters) {
+		List<T> result = new ArrayList<T>();
+		Query query = QueryFactory.getRecordsQuery(cLass, condition, parameters);
+		List<List<Object>> records = (List<List<Object>>) execute(query);
+		List<Field> fields = QueryFactory.excludeNotThisDB(cLass);
+		records.forEach(record -> {
+			Object eachInstance;
+			try {
+				eachInstance = cLass.getConstructor().newInstance();
+				for (int i = 0; i < record.size(); i++) {
+					String methodName = setterString(fields.get(i).getName());
+					cLass.getMethod(methodName, fields.get(i).getType()).invoke(eachInstance, record.get(i));
+				}
+				result.add((T) eachInstance);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		});
+		return result;
 	}
 
-	public static <T> T get(Class<T> cLass, Object... primaryKey) {
-		return null;
+	@SuppressWarnings("unchecked")
+	public <T> T get(Class<T> cLass, Object... primaryKey) {
+		Query query = QueryFactory.getRecordQuery(cLass, primaryKey);
+		Object eachInstance = null;
+		List<Object> records = (List<Object>) execute(query);
+		List<Field> fields = QueryFactory.excludeNotThisDB(cLass);
+		if (records.size() == 0)
+			return null;
+		try {
+			eachInstance = cLass.getConstructor().newInstance();
+			for (int i = 0; i < fields.size(); i++) {
+				String methodName = setterString(fields.get(i).getName());
+				cLass.getMethod(methodName, fields.get(i).getType()).invoke(eachInstance, records.get(i));
+			}
+		} catch (Exception e) {
+		}
+		return (T) eachInstance;
 	}
 
-	public static boolean update(Object... record) {
-		return false;
-	}
-
-	public static boolean delete(Object... record) {
-		return false;
+	private static String setterString(String fieldName) {
+		return "set" + fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1);
 	}
 
 }
