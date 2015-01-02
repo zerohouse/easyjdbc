@@ -1,4 +1,4 @@
-package easyjdbc.dao;
+package easyjdbc.query;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -15,6 +15,13 @@ public class PrimaryFields {
 		for (int i = 0; i < columnSize; i++)
 			if (fields.get(i).isAnnotationPresent(Key.class))
 				keys.add(fields.get(i));
+	}
+	
+	public PrimaryFields(Class<?> cLass) {
+		Field[] fields = cLass.getDeclaredFields();
+		for (int i = 0; i < fields.length; i++)
+			if (fields[i].isAnnotationPresent(Key.class))
+				keys.add(fields[i]);
 	}
 
 	public void add(Field field) {
@@ -33,9 +40,10 @@ public class PrimaryFields {
 	public Object[] getParams(Object record) {
 		Object[] result = new Object[keys.size()];
 		for(int i=0; i<keys.size();i++){
-			result[i] = DBMethods.getFieldObject(keys.get(i).getName(), record);
+			result[i] = QueryFactory.getFieldObject(keys.get(i).getName(), record);
 		}
 		return result;
-	}
+	}	
+	
 	
 }
