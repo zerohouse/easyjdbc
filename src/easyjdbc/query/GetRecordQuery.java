@@ -7,19 +7,16 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class GetRecordQuery implements Query {
+public class GetRecordQuery extends QueryProto {
 
-	private int resultSize;
-	private String sql;
-	private List<Object> parameters;
-	
 	@Override
 	public Object execute(PreparedStatement pstmt, Connection conn, ResultSet rs) throws SQLException {
 		List<Object> record = new ArrayList<Object>();
 		pstmt = conn.prepareStatement(sql);
-		for (int j = 0; j < parameters.size(); j++) {
-			pstmt.setObject(j + 1, parameters.get(j));
-		}
+		if (parameters != null)
+			for (int j = 0; j < parameters.size(); j++) {
+				pstmt.setObject(j + 1, parameters.get(j));
+			}
 		rs = pstmt.executeQuery();
 		while (rs.next()) {
 			for (int i = 0; i < resultSize; i++) {
@@ -34,13 +31,16 @@ public class GetRecordQuery implements Query {
 		this.resultSize = resultSize;
 		this.sql = sql;
 		this.parameters = parameters;
+		if (parameters == null) {
+			parameters = new ArrayList<Object>();
+		}
 	}
-	
+
 	public GetRecordQuery(int resultSize, String sql, Object... parameters) {
 		this.resultSize = resultSize;
 		this.sql = sql;
 		this.parameters = new ArrayList<Object>();
-		for(int i=0; i<parameters.length; i++){
+		for (int i = 0; i < parameters.length; i++) {
 			this.parameters.add(parameters[i]);
 		}
 	}

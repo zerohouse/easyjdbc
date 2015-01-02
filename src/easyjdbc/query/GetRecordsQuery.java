@@ -6,20 +6,18 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class GetRecordsQuery implements Query {
-
-	private int resultSize;
-	private String sql;
-	private List<Object> parameters;
+public class GetRecordsQuery extends QueryProto {
 
 	@Override
 	public Object execute(PreparedStatement pstmt, java.sql.Connection conn, ResultSet rs) throws SQLException {
 		List<Object> record;
 		List<List<Object>> result = new ArrayList<List<Object>>();
 		pstmt = conn.prepareStatement(sql);
-		for (int j = 0; j < parameters.size(); j++) {
-			pstmt.setObject(j + 1, parameters.get(j));
-		}
+		
+		if (parameters != null)
+			for (int j = 0; j < parameters.size(); j++) {
+				pstmt.setObject(j + 1, parameters.get(j));
+			}
 		rs = pstmt.executeQuery();
 		while (rs.next()) {
 			record = new ArrayList<Object>();
@@ -35,5 +33,8 @@ public class GetRecordsQuery implements Query {
 		this.resultSize = resultSize;
 		this.sql = sql;
 		this.parameters = parameters;
+		if (parameters == null) {
+			parameters = new ArrayList<Object>();
+		}
 	}
 }

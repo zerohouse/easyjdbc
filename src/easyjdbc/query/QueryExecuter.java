@@ -9,6 +9,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import easyjdbc.annotation.Table;
 import easyjdbc.setting.Setting;
 
 public class QueryExecuter {
@@ -135,7 +136,14 @@ public class QueryExecuter {
 		}
 		return doneQueries;
 	}
-
+	
+	public boolean delete(Class<?> cLass, String WhereClause, Object... parameters) {
+		ExecuteQuery exe = new ExecuteQuery("delete from " + cLass.getAnnotation(Table.class).value(), null);
+		for(int i=0; i<parameters.length;i++){
+			exe.addParameters(parameters[i]);
+		}
+		return (boolean) execute(exe);
+	}
 
 	@SuppressWarnings("unchecked")
 	public Object insertAndGetPrimaryKey(Object record) {
