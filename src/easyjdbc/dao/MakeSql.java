@@ -6,182 +6,105 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import easyjdbc.annotation.Column;
 import easyjdbc.annotation.Exclude;
 import easyjdbc.annotation.Key;
 import easyjdbc.annotation.Table;
 
-public class DBMethods {
+public class MakeSql {
 
-	private DBMethods() {
+	private MakeSql() {
+		
 	}
 
-	public static boolean insertIfExistUpdate(Object record) {
-		List<Field> fields = excludeNotThisDB(record.getClass());
-		String tableName = record.getClass().getAnnotation(Table.class).value();
-		String valueString = "";
-		String fieldsString = "";
-		DAO dao = DAOfactory.getDAO();
-		List<Object> params = new ArrayList<Object>();
-		Object param;
-		for (int i = 0; i < fields.size(); i++) {
-			try {
-				param = getFieldObject(fields.get(i).getName(), record);
-				if (param != null) {
-					if(fields.get(i).isAnnotationPresent(Column.class))
-						fieldsString += fields.get(i).getName() + ",";
-					valueString += "?,";
-					params.add(param);
-				}
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-
-		fieldsString = fieldsString.substring(0, fieldsString.length() - 1);
-		valueString = valueString.substring(0, valueString.length() - 1);
-		String sql = "insert into " + tableName + " (" + fieldsString + ") values(" + valueString + ")";
-		String updateString = addParams(record, params);
-		sql += " on duplicate key update " + updateString;
-
-		return dao.doQuery(sql, params);
-
-	}
-
-	public static boolean insertIfNotExist(Object record) {
+	public static SqlHolder getInsertSQLholder(Object record, boolean ifNotExistIgnore) {
 		Table anotation = record.getClass().getAnnotation(Table.class);
 		String tableName = anotation.value();
 		List<Field> fields = excludeNotThisDB(record.getClass());
-
-		DAO dao = DAOfactory.getDAO();
-		Object param;
-		List<Object> params = new ArrayList<Object>();
 		String valueString = "";
 		String fieldsString = "";
+		SqlHolder sqlholder = new SqlHolder();
+		sqlholder.setReturnType(SqlHolder.RETURN_NULL);
+		Object param;
 		for (int i = 0; i < fields.size(); i++) {
 			try {
 				param = getFieldObject(fields.get(i).getName(), record);
 				if (param != null) {
 					fieldsString += fields.get(i).getName() + ",";
 					valueString += "?,";
-					params.add(param);
+					sqlholder.addParameters(param);
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
-
 		fieldsString = fieldsString.substring(0, fieldsString.length() - 1);
 		valueString = valueString.substring(0, valueString.length() - 1);
-		String sql = "insert ignore into " + tableName + " (" + fieldsString + ") values(" + valueString + ")";
-
-		return dao.doQuery(sql, params);
-	}
-
-	public static boolean insert(Object... records) {
-		DAO dao = DAOfactory.getDAO();
-		Object param;
-		String valueString;
-		String fieldsString;
-		String tableName;
-		String sql;
-		List<String> sqls = new ArrayList<String>();
-		List<Field> fields;
-		List<Object> params;
-		List<List<Object>> parameterArrays = new ArrayList<List<Object>>();
-		for (int j = 0; j < records.length; j++) {
-			params = new ArrayList<Object>();
-			valueString = "";
-			fieldsString = "";
-			tableName = records[j].getClass().getAnnotation(Table.class).value();
-			fields = excludeNotThisDB(records[j].getClass());
-
-			for (int i = 0; i < fields.size(); i++) {
-				try {
-					param = getFieldObject(fields.get(i).getName(), records[j]);
-					if (param != null) {
-						fieldsString += fields.get(i).getName() + ",";
-						valueString += "?,";
-						params.add(param);
-					}
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-
-			fieldsString = fieldsString.substring(0, fieldsString.length() - 1);
-			valueString = valueString.substring(0, valueString.length() - 1);
-			sql = "insert into " + tableName + " (" + fieldsString + ") values(" + valueString + ")";
-			sqls.add(sql);
-			parameterArrays.add(params);
+		if (ifNotExistIgnore) {
+			sqlholder.setSql("insert ignore into " + tableName + " (" + fieldsString + ") values(" + valueString + ")");
+			return sqlholder;
 		}
-		return dao.doQueries(sqls, parameterArrays);
+		sqlholder.setSql("insert into " + tableName + " (" + fieldsString + ") values(" + valueString + ")");
+		return sqlholder;
 	}
 
-	public static Object insertAndGetPrimaryKey(Object record) {
-		Table anotation = record.getClass().getAnnotation(Table.class);
-		String tableName = anotation.value();
-		List<Field> fields = excludeNotThisDB(record.getClass());
 
-		String fieldsString = "";
-		String valueString = "";
-		Object param;
-		ArrayList<Object> params = new ArrayList<Object>();
-
-		for (int i = 0; i < fields.size(); i++) {
-			try {
-				param = getFieldObject(fields.get(i).getName(), record);
-				if (param != null) {
-					fieldsString += fields.get(i).getName() + ",";
-					valueString += "?,";
-					params.add(param);
-				}
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-
-		fieldsString = fieldsString.substring(0, fieldsString.length() - 1);
-		valueString = valueString.substring(0, valueString.length() - 1);
-
-		List<String> sqls = new ArrayList<String>();
-		sqls.add("insert into " + tableName + " (" + fieldsString + ") values(" + valueString + ");");
-		sqls.add("SELECT LAST_INSERT_ID();");
-		List<List<Object>> parameterArrays = new ArrayList<List<Object>>();
-		parameterArrays.add(params);
-		parameterArrays.add(null);
-		DAO dao = new MySql();
-
-		return dao.doQueriesAndReturnLast(sqls, parameterArrays, 1).get(0);
-	}
-
-	public static <T> List<T> getList(Class<T> cLass) {
+	public static SqlHolder getListSQLholder(Class<?> cLass, String condition, Object... parameters) {
 		Table table = cLass.getAnnotation(Table.class);
-		DAO dao = DAOfactory.getDAO();
-		String defaultCondition = table.defaultCondition();
 		String sql = "select * from " + table.value();
-
-		if (defaultCondition != null)
-			sql += " where " + table.defaultCondition();
-
-		return getList(cLass, sql, dao);
-	}
-
-	public static <T> List<T> getList(Class<T> cLass, String condition, Object... parameters) {
-		Table table = cLass.getAnnotation(Table.class);
-		String defaultCondition = table.defaultCondition();
-		String sql = "select * from " + table.value();
-		List<Object> params = new ArrayList<Object>();
+		SqlHolder sqlholder = new SqlHolder();
 		if (condition != null)
 			sql += " where " + condition;
-		else if (defaultCondition != null)
-			sql += " where " + table.defaultCondition();
-
+		int resultSize = excludeNotThisDB(cLass).size();
+		sqlholder.setSql(sql);
+		sqlholder.setReturnType(SqlHolder.RETURN_RECORDS);
+		sqlholder.setResultSize(resultSize);
 		for (int i = 0; i < parameters.length; i++) {
-			params.add(parameters[i]);
+			sqlholder.addParameters(parameters[i]);
 		}
-		return getList(cLass, sql, params);
+		return sqlholder;
 	}
+	
+	public static SqlHolder getSQLholder(Class<?> cLass, String condition, Object... parameters) {
+		Table table = cLass.getAnnotation(Table.class);
+		String sql = "select * from " + table.value();
+		SqlHolder sqlholder = new SqlHolder();
+		if (condition != null)
+			sql += " where " + condition;
+		int resultSize = excludeNotThisDB(cLass).size();
+		sqlholder.setSql(sql);
+		sqlholder.setReturnType(SqlHolder.RETURN_SINGLE_RECORD);
+		sqlholder.setResultSize(resultSize);
+		for (int i = 0; i < parameters.length; i++) {
+			sqlholder.addParameters(parameters[i]);
+		}
+		return sqlholder;
+	}
+	
+	public static SqlHolder getByKeySQLholder(Class<?> cLass) {
+		
+		Table anotation = cLass.getAnnotation(Table.class);
+		PrimaryFields primaryField = getPrimaryField(cLass);
+		String sql = "select * from " + anotation.value() + " where " + primaryField.getCondition();
+		List<Object> params = new ArrayList<Object>();
+		params.add(primaryKey);
+		return gets(cLass, sql, params);
+		
+		
+		Table table = cLass.getAnnotation(Table.class);
+		String sql = "select * from " + table.value();
+		SqlHolder sqlholder = new SqlHolder();
+		if (condition != null)
+			sql += " where " + condition;
+		int resultSize = excludeNotThisDB(cLass).size();
+		sqlholder.setSql(sql);
+		sqlholder.setReturnType(SqlHolder.RETURN_SINGLE_RECORD);
+		sqlholder.setResultSize(resultSize);
+		for (int i = 0; i < parameters.length; i++) {
+			sqlholder.addParameters(parameters[i]);
+		}
+		return sqlholder;
+	}
+	
 
 	@SuppressWarnings("unchecked")
 	private static <T> List<T> getList(Class<T> cLass, String sql, List<Object> params) {
@@ -217,6 +140,17 @@ public class DBMethods {
 		return gets(cLass, sql, params);
 	}
 
+	public static <T> T getMoreCondition(Class<T> cLass, String condition, Object... parameters) {
+		Table anotation = cLass.getAnnotation(Table.class);
+		String sql = "select * from " + anotation.value();
+		List<Object> params = new ArrayList<Object>();
+		if (condition != null)
+			sql += " where " + condition;
+		for (int i = 0; i < parameters.length; i++)
+			params.add(parameters[i]);
+		return gets(cLass, sql, params);
+	}
+
 	@SuppressWarnings("unchecked")
 	private static <T> T gets(Class<T> cLass, String sql, List<Object> params) {
 		List<Field> excludesFields = excludeNotThisDB(cLass);
@@ -233,19 +167,6 @@ public class DBMethods {
 			return null;
 		}
 	}
-	
-	
-	public static <T> T getMoreCondition(Class<T> cLass, String condition, Object... parameters) {
-		Table anotation = cLass.getAnnotation(Table.class);
-		String sql = "select * from " + anotation.value();
-		List<Object> params = new ArrayList<Object>();
-		if (condition != null)
-			sql += " where " + condition;
-		for (int i = 0; i < parameters.length; i++)
-			params.add(parameters[i]);
-		return gets(cLass, sql, params);
-	}
-
 
 	private static <T> Object setRecords(Class<T> cLass, List<Field> excludedFields, List<Object> next) throws InstantiationException,
 			IllegalAccessException, InvocationTargetException, NoSuchMethodException {
@@ -318,7 +239,7 @@ public class DBMethods {
 			System.out.println(params);
 			sqls.add("delete from " + tableName + " where " + primaryField.getCondition());
 			parameterArray.add(params);
-			
+
 		}
 		return dao.doQueries(sqls, parameterArray);
 	}

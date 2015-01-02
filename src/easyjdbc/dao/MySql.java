@@ -26,34 +26,6 @@ public class MySql implements DAO {
 		return con;
 	}
 
-	public boolean doQuery(String sql, List<Object> params) {
-		PreparedStatement pstmt = null;
-		Connection conn = null;
-		try {
-			conn = getConnection();
-			pstmt = conn.prepareStatement(sql);
-			setParameters(params, pstmt);
-			pstmt.execute();
-			return pstmt.getUpdateCount() == 1;
-
-		} catch (SQLException e) {
-			e.printStackTrace();
-
-		} finally {
-			if (pstmt != null)
-				try {
-					pstmt.close();
-				} catch (SQLException sqle) {
-				}
-			if (conn != null)
-				try {
-					conn.close();
-				} catch (SQLException sqle) {
-				}
-		}
-		return false;
-	}
-
 	public boolean doQueries(List<String> sqls, List<List<Object>> parameterArrays) {
 		PreparedStatement pstmt = null;
 		Connection conn = null;
