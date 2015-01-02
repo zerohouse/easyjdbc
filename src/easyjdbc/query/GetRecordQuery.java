@@ -32,7 +32,7 @@ public class GetRecordQuery extends QueryProto {
 		this.sql = sql;
 		this.parameters = parameters;
 		if (parameters == null) {
-			parameters = new ArrayList<Object>();
+			this.parameters = new ArrayList<Object>();
 		}
 	}
 

@@ -128,6 +128,16 @@ public class QueryFactory {
 		}
 		return new GetRecordQuery(excludedFields.size(), sql, parameters);
 	}
+	
+	public static Query getRecordQuery(Class<?> cLass) {
+		Table anotation = cLass.getAnnotation(Table.class);
+		List<Field> excludedFields = excludeNotThisDB(cLass);
+		String sql = "select * from " + anotation.value();
+		List<Object> parameters = new ArrayList<Object>();
+		return new GetRecordQuery(excludedFields.size(), sql, parameters);
+	}
+
+	
 
 	public static Query getRecordsQuery(Class<?> cLass, String condition, Object... objects) {
 		Table anotation = cLass.getAnnotation(Table.class);

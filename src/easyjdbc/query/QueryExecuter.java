@@ -114,7 +114,7 @@ public class QueryExecuter {
 		}
 		return doneQueries;
 	}
-	
+
 	public int update(Object... records) {
 		int doneQueries = 0;
 		Query query;
@@ -136,10 +136,10 @@ public class QueryExecuter {
 		}
 		return doneQueries;
 	}
-	
+
 	public boolean delete(Class<?> cLass, String WhereClause, Object... parameters) {
 		ExecuteQuery exe = new ExecuteQuery("delete from " + cLass.getAnnotation(Table.class).value(), null);
-		for(int i=0; i<parameters.length;i++){
+		for (int i = 0; i < parameters.length; i++) {
 			exe.addParameters(parameters[i]);
 		}
 		return (boolean) execute(exe);
@@ -153,7 +153,6 @@ public class QueryExecuter {
 			return null;
 		return ((List<Object>) execute(getPrimaryKey)).get(0);
 	}
-	
 
 	@SuppressWarnings("unchecked")
 	public <T> List<T> getList(Class<T> cLass) {
@@ -205,6 +204,31 @@ public class QueryExecuter {
 		Object eachInstance = null;
 		List<Object> records = (List<Object>) execute(query);
 		List<Field> fields = QueryFactory.excludeNotThisDB(cLass);
+		if (records.size() == 0)
+			return null;
+		try {
+			eachInstance = cLass.getConstructor().newInstance();
+			for (int i = 0; i < fields.size(); i++) {
+				String methodName = setterString(fields.get(i).getName());
+				cLass.getMethod(methodName, fields.get(i).getType()).invoke(eachInstance, records.get(i));
+			}
+		} catch (Exception e) {
+		}
+		return (T) eachInstance;
+	}
+
+	@SuppressWarnings("unchecked")
+	public <T> T getWhere(Class<T> cLass, String WhereClause, Object... keys) {
+		Query query = QueryFactory.getRecordQuery(cLass);
+		Object eachInstance = null;
+		List<Object> records = (List<Object>) execute(query);
+		List<Field> fields = QueryFactory.excludeNotThisDB(cLass);
+		if (WhereClause != null) {
+			query.addSql(" where " + WhereClause);
+		}
+		for (int i = 0; i < keys.length; i++) {
+			query.addParameters(keys[i]);
+		}
 		if (records.size() == 0)
 			return null;
 		try {

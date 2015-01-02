@@ -34,7 +34,16 @@ public class GetRecordsQuery extends QueryProto {
 		this.sql = sql;
 		this.parameters = parameters;
 		if (parameters == null) {
-			parameters = new ArrayList<Object>();
+			this.parameters = new ArrayList<Object>();
+		}
+	}
+	
+	public GetRecordsQuery(int resultSize, String sql, Object... parameters) {
+		this.resultSize = resultSize;
+		this.sql = sql;
+		this.parameters = new ArrayList<Object>();
+		for(int i=0; i<parameters.length;i++){
+			this.parameters.add(parameters[i]);
 		}
 	}
 }
