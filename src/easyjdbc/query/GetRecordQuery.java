@@ -10,20 +10,29 @@ import java.util.List;
 public class GetRecordQuery extends QueryProto {
 
 	@Override
-	public Object execute(PreparedStatement pstmt, Connection conn, ResultSet rs) throws SQLException {
+	public List<Object> execute(Connection conn) throws SQLException {
 		List<Object> record = new ArrayList<Object>();
-		pstmt = conn.prepareStatement(sql);
+		PreparedStatement pstmt = conn.prepareStatement(sql);
 		if (parameters != null)
 			for (int j = 0; j < parameters.size(); j++) {
 				pstmt.setObject(j + 1, parameters.get(j));
 			}
-		rs = pstmt.executeQuery();
+		ResultSet rs = pstmt.executeQuery();
 		while (rs.next()) {
 			for (int i = 0; i < resultSize; i++) {
 				record.add(rs.getObject(i + 1));
 			}
 		}
-
+		if (pstmt != null)
+			try {
+				pstmt.close();
+			} catch (SQLException sqle) {
+			}
+		if (rs != null)
+			try {
+				rs.close();
+			} catch (SQLException sqle) {
+			}
 		return record;
 	}
 

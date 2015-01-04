@@ -3,8 +3,6 @@ package easyjdbc.query;
 import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,20 +27,16 @@ public class QueryExecuter {
 	}
 
 	Connection conn;
-	PreparedStatement pstmt;
-	ResultSet rs;
 
 	public QueryExecuter() {
 		conn = getConnection();
 	}
 
 	public List<Object> executeQuries(Query... sqls) {
-		PreparedStatement pstmt = null;
-		ResultSet rs = null;
 		try {
 			List<Object> results = new ArrayList<Object>();
 			for (int i = 0; i < sqls.length; i++) {
-				results.add(sqls[i].execute(pstmt, conn, rs));
+				results.add(sqls[i].execute(conn));
 			}
 			return results;
 		} catch (SQLException e) {
@@ -53,10 +47,8 @@ public class QueryExecuter {
 	}
 
 	public Object execute(Query sql) {
-		PreparedStatement pstmt = null;
-		ResultSet rs = null;
 		try {
-			return sql.execute(pstmt, conn, rs);
+			return sql.execute(conn);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		} finally {
@@ -65,19 +57,9 @@ public class QueryExecuter {
 	}
 
 	public void close() {
-		if (pstmt != null)
-			try {
-				pstmt.close();
-			} catch (SQLException sqle) {
-			}
 		if (conn != null)
 			try {
 				conn.close();
-			} catch (SQLException sqle) {
-			}
-		if (rs != null)
-			try {
-				rs.close();
 			} catch (SQLException sqle) {
 			}
 	}
@@ -138,7 +120,7 @@ public class QueryExecuter {
 	}
 
 	public boolean delete(Class<?> cLass, String WhereClause, Object... parameters) {
-		ExecuteQuery exe = new ExecuteQuery("delete from " + cLass.getAnnotation(Table.class).value(), null);
+		ExecuteQuery exe = new ExecuteQuery("delete from " + cLass.getAnnotation(Table.class).value() + " where " + WhereClause, null);
 		for (int i = 0; i < parameters.length; i++) {
 			exe.addParameters(parameters[i]);
 		}
