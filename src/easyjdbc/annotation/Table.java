@@ -10,4 +10,6 @@ public @interface Table {
 
 	String defaultCondition() default "";
 
+	int pageSize() default 10;
+
 }

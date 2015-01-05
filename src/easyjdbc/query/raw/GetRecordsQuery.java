@@ -1,4 +1,4 @@
-package easyjdbc.query;
+package easyjdbc.query.raw;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -7,9 +7,10 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class GetRecordsQuery extends QueryProto {
+import easyjdbc.query.Query;
 
-	@Override
+public class GetRecordsQuery extends Query {
+
 	public List<List<Object>> execute(Connection conn) throws SQLException {
 		List<Object> record;
 		List<List<Object>> result = new ArrayList<List<Object>>();

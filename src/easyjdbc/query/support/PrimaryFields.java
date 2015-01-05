@@ -1,4 +1,4 @@
-package easyjdbc.query;
+package easyjdbc.query.support;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -40,7 +40,7 @@ public class PrimaryFields {
 	public Object[] getParams(Object record) {
 		Object[] result = new Object[keys.size()];
 		for(int i=0; i<keys.size();i++){
-			result[i] = QueryFactory.getFieldObject(keys.get(i).getName(), record);
+			result[i] = Methods.getFieldObject(keys.get(i).getName(), record);
 		}
 		return result;
 	}	

@@ -1,4 +1,4 @@
-package easyjdbc.query;
+package easyjdbc.query.raw;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -6,7 +6,9 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ExecuteQuery extends QueryProto {
+import easyjdbc.query.Query;
+
+public class ExecuteQuery extends Query {
 
 	public ExecuteQuery(String sql, List<Object> parameters) {
 		this.sql = sql;
@@ -15,8 +17,16 @@ public class ExecuteQuery extends QueryProto {
 			this.parameters = new ArrayList<Object>();
 		}
 	}
+	
+	public ExecuteQuery(String sql, Object... parameters) {
+		this.sql = sql;
+		this.parameters = new ArrayList<Object>();
+		for (int i = 0; i < parameters.length; i++) {
+			this.parameters.add(parameters[i]);
+		}
+	}
 
-	@Override
+
 	public Boolean execute(Connection conn) throws SQLException {
 		PreparedStatement pstmt = conn.prepareStatement(sql);
 		if (parameters != null)
@@ -30,7 +40,7 @@ public class ExecuteQuery extends QueryProto {
 				pstmt.close();
 			} catch (SQLException sqle) {
 			}
-		return result == 1;
+		return result != 0;
 	}
 
 }
