@@ -12,7 +12,6 @@ public class ExecuteableQuery extends EasyQuery {
 		PreparedStatement pstmt;
 		try {
 			pstmt = conn.prepareStatement(sql);
-			System.out.println(sql);
 			if (parameters != null)
 				for (int j = 0; j < parameters.size(); j++) {
 					pstmt.setObject(j + 1, parameters.get(j));

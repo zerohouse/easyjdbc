@@ -27,20 +27,26 @@ public class ExecuteQuery extends Query {
 	}
 
 
-	public Boolean execute(Connection conn) throws SQLException {
-		PreparedStatement pstmt = conn.prepareStatement(sql);
-		if (parameters != null)
-			for (int j = 0; j < parameters.size(); j++) {
-				pstmt.setObject(j + 1, parameters.get(j));
-			}
-		pstmt.execute();
-		int result = pstmt.getUpdateCount();
-		if (pstmt != null)
-			try {
-				pstmt.close();
-			} catch (SQLException sqle) {
-			}
-		return result != 0;
+	public Boolean execute(Connection conn){
+		PreparedStatement pstmt;
+		try {
+			pstmt = conn.prepareStatement(sql);
+			if (parameters != null)
+				for (int j = 0; j < parameters.size(); j++) {
+					pstmt.setObject(j + 1, parameters.get(j));
+				}
+			pstmt.execute();
+			int result = pstmt.getUpdateCount();
+			if (pstmt != null)
+				try {
+					pstmt.close();
+				} catch (SQLException sqle) {
+				}
+			return result != 0;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return false;
 	}
 
 }

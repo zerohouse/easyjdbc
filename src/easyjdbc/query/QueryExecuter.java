@@ -9,6 +9,7 @@ import easyjdbc.query.execute.DeleteQuery;
 import easyjdbc.query.execute.DeleteWhereQuery;
 import easyjdbc.query.execute.InsertQuery;
 import easyjdbc.query.execute.UpdateQuery;
+import easyjdbc.query.raw.ExecuteQuery;
 import easyjdbc.query.raw.GetRecordQuery;
 import easyjdbc.query.raw.GetRecordsQuery;
 import easyjdbc.query.select.ListQuery;
@@ -38,24 +39,16 @@ public class QueryExecuter {
 		conn = getConnection();
 	}
 
+	public Boolean execute(ExecuteQuery executeQuery) {
+		return executeQuery.execute(conn);
+	}
+
 	public List<Object> execute(GetRecordQuery sql) {
-		try {
-			return sql.execute(conn);
-		} catch (SQLException e) {
-			e.printStackTrace();
-		} finally {
-		}
-		return null;
+		return sql.execute(conn);
 	}
 
 	public List<List<Object>> execute(GetRecordsQuery sql) {
-		try {
-			return sql.execute(conn);
-		} catch (SQLException e) {
-			e.printStackTrace();
-		} finally {
-		}
-		return null;
+		return sql.execute(conn);
 	}
 
 	public void close() {
@@ -107,7 +100,7 @@ public class QueryExecuter {
 	public Object insertAndGetPrimaryKey(Object record) {
 		InsertQuery query = new InsertQuery(record);
 		GetRecordQuery getPrimaryKey = new GetRecordQuery(1, "SELECT LAST_INSERT_ID();");
-		if(!query.execute(conn))
+		if (!query.execute(conn))
 			return null;
 		return execute(getPrimaryKey).get(0);
 	}
@@ -136,5 +129,8 @@ public class QueryExecuter {
 		return query.execute(conn);
 	}
 
+	public boolean execute(UpdateQuery query) {
+		return query.execute(conn);
+	}
 
 }

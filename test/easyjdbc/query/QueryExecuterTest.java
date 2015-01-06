@@ -39,6 +39,7 @@ public class QueryExecuterTest {
 		QueryExecuter qe = new QueryExecuter();
 		Type type = qe.get(Type.class, "z");
 		System.out.println(type);
+		assertTrue(true);
 	}
 
 

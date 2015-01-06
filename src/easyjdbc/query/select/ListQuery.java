@@ -22,7 +22,7 @@ public class ListQuery<T> extends EasyQuery {
 
 	public ListQuery(Class<T> cLass, String whereClause, Object... keys) {
 		type = cLass;
-		setByType(cLass);
+		setByType(cLass, DBColumn.PHASE_SELECT);
 		Table table = type.getAnnotation(Table.class);
 		this.pageSize = table.pageSize();
 		this.tableName = table.value();
@@ -33,7 +33,7 @@ public class ListQuery<T> extends EasyQuery {
 
 	public ListQuery(Class<T> cLass) {
 		type = cLass;
-		setByType(cLass);
+		setByType(cLass, DBColumn.PHASE_SELECT);
 		Table table = type.getAnnotation(Table.class);
 		this.pageSize = table.pageSize();
 		this.tableName = table.value();
@@ -57,12 +57,12 @@ public class ListQuery<T> extends EasyQuery {
 			try {
 				while (rs.next()) {
 					instance = type.getConstructor().newInstance();
-					for (String key : keys.keySet()) {
-						DBColumn column = keys.get(key);
+					for (int i = 0; i < keys.size(); i++) {
+						DBColumn column = keys.get(i);
 						column.setObjectField(instance, rs.getObject(column.getColumnName()));
 					}
-					for (String key : columns.keySet()) {
-						DBColumn column = columns.get(key);
+					for (int i = 0; i < columns.size(); i++) {
+						DBColumn column = columns.get(i);
 						column.setObjectField(instance, rs.getObject(column.getColumnName()));
 					}
 					result.add((T) instance);
@@ -97,24 +97,24 @@ public class ListQuery<T> extends EasyQuery {
 	}
 
 	private void setWhere() {
-		sql += " where ";
+		sql += WHERE;
 		for (int i = 0; i < whereClauses.size(); i++) {
 			sql += whereClauses.get(i) + " ";
 		}
 	}
-	
-	public void setOrder(String columnName, boolean asc){
-		order = "order by " + columnName +" "; 
-		if(!asc)
+
+	public void setOrder(String columnName, boolean asc) {
+		order = "order by " + columnName + " ";
+		if (!asc)
 			order += "desc ";
 	}
 
 	public void setPage(int pageIndex) {
-		limit = " limit " + (pageSize * (pageIndex - 1)) + "," + pageSize + " ";
+		limit = " limit " + (pageSize * (pageIndex - 1)) + COMMA + pageSize + " ";
 	}
 
 	public void setPage(int pageIndex, int pageSize) {
-		limit = " limit " + (pageSize * (pageIndex - 1)) + "," + pageSize + " ";
+		limit = " limit " + (pageSize * (pageIndex - 1)) + COMMA + pageSize + " ";
 	}
 
 }
