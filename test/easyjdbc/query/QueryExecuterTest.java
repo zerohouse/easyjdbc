@@ -4,43 +4,25 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
+import easyjdbc.object.User;
+import easyjdbc.object.UserAndType;
+
 public class QueryExecuterTest {
+
+	QueryExecuter qe = new QueryExecuter();
 
 	@Test
 	public void test() {
-		QueryExecuter qe = new QueryExecuter();
-		Type type = new Type(null, "zerohouse", "네임", "오홍");
-		qe.insert(type);
+		User user = qe.get(User.class, "zerohouse");
+		System.out.println(user);
 	}
-	
+
 	@Test
-	public void testInsert() {
-		QueryExecuter qe = new QueryExecuter();
-		Type type = new Type(null, "zerohouse", "네cvncn임", "오홍");
-		Type type2 = new Type(null, "zerohouse", "네serysrey임", "오홍");
-		qe.insert(type, type2);
+	public void test2() {
+		UserAndType user = qe.get(UserAndType.class, "zerohouse");
+		System.out.println(user);
 	}
-	
-	@Test
-	public void testInssert() {
-		QueryExecuter qe = new QueryExecuter();
-		System.out.println(qe.getList(Type.class));
-	}
-	
-	@Test
-	public void testInsssert() {
-		QueryExecuter qe = new QueryExecuter();
-		Type type = qe.get(Type.class, "z");
-		System.out.println(type);
-	}
-	
-	@Test
-	public void testInssssert() {
-		QueryExecuter qe = new QueryExecuter();
-		Type type = qe.get(Type.class, "z");
-		System.out.println(type);
-		assertTrue(true);
-	}
+
 
 
 }

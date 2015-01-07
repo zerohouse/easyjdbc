@@ -39,18 +39,6 @@ public class QueryExecuter {
 		conn = getConnection();
 	}
 
-	public Boolean execute(ExecuteQuery executeQuery) {
-		return executeQuery.execute(conn);
-	}
-
-	public List<Object> execute(GetRecordQuery sql) {
-		return sql.execute(conn);
-	}
-
-	public List<List<Object>> execute(GetRecordsQuery sql) {
-		return sql.execute(conn);
-	}
-
 	public void close() {
 		if (conn != null)
 			try {
@@ -99,10 +87,31 @@ public class QueryExecuter {
 
 	public Object insertAndGetPrimaryKey(Object record) {
 		InsertQuery query = new InsertQuery(record);
-		GetRecordQuery getPrimaryKey = new GetRecordQuery(1, "SELECT LAST_INSERT_ID();");
 		if (!query.execute(conn))
 			return null;
-		return execute(getPrimaryKey).get(0);
+		return get(1, "SELECT LAST_INSERT_ID();").get(0);
+	}
+	
+	public int insertIfExistUpdate(Object... records){
+		int doneQueries = 0;
+		InsertQuery query;
+		for (int i = 0; i < records.length; i++) {
+			query = new InsertQuery(records[i]);
+			query.ifExistUpdate();
+			if (query.execute(conn))
+				doneQueries++;
+		}
+		return doneQueries;
+	}
+
+	public boolean execute(String sql, Object... parameters){
+		ExecuteQuery query = new ExecuteQuery(sql, parameters);
+		return query.execute(conn);
+	}
+	
+	public List<List<Object>> getList(int i, String sql, Object... parameters) {
+		GetRecordsQuery query = new GetRecordsQuery(i, sql, parameters);
+		return query.execute(conn);
 	}
 
 	public <T> List<T> getList(Class<T> cLass) {
@@ -112,6 +121,11 @@ public class QueryExecuter {
 
 	public <T> List<T> getList(Class<T> cLass, String condition, Object... parameters) {
 		ListQuery<T> query = new ListQuery<T>(cLass, condition, parameters);
+		return query.execute(conn);
+	}
+	
+	public List<Object> get(int resultSetSize, String sql) {
+		GetRecordQuery query = new GetRecordQuery(resultSetSize, sql);
 		return query.execute(conn);
 	}
 
@@ -125,12 +139,5 @@ public class QueryExecuter {
 		return query.execute(conn);
 	}
 
-	public boolean execute(InsertQuery query) {
-		return query.execute(conn);
-	}
-
-	public boolean execute(UpdateQuery query) {
-		return query.execute(conn);
-	}
 
 }
