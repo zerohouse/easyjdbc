@@ -12,17 +12,8 @@ public class UpdateQuery extends ExecuteableQuery {
 		setByInstance(instance, DBColumn.PHASE_UPDATE);
 		Table table = type.getAnnotation(Table.class);
 		this.tableName = table.value();
-		sql = "update " + tableName + " set " + getNotNullFieldString(columns, COMMA, true) + WHERE + getNotNullFieldString(keys, AND, true);
-		for (int i = 0; i < columns.size(); i++) {
-			DBColumn column = columns.get(i);
-			if (column.hasObject())
-				column.addObject(parameters);
-		}
-		for (int i = 0; i < keys.size(); i++) {
-			DBColumn column = keys.get(i);
-			if (column.hasObject())
-				column.addObject(parameters);
-		}
+		sql = "update " + tableName + " set " + columns.addAndGetString(parameters, COMMA, true) + WHERE
+				+ keys.addAndGetString(parameters, AND, true);
 	}
 
 }

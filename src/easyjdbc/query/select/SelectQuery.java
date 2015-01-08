@@ -19,7 +19,8 @@ public class SelectQuery<T> extends EasyQuery {
 		setByTypeAndPrimaryKey(cLass, DBColumn.PHASE_SELECT, primaryKey);
 		Table table = type.getAnnotation(Table.class);
 		this.tableName = table.value();
-		sql = "select * from " + tableName + WHERE + joinedString(keys, AND, true);
+		sql = "select " + keys.getJoinedName(",", false) + columns.getJoinedName(",", true) + " from " + tableName + WHERE
+				+ keys.getJoinedNameAndValue(AND, true);
 
 		for (int i = 0; i < primaryKey.length; i++) {
 			parameters.add(primaryKey[i]);

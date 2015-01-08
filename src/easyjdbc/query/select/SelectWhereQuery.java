@@ -19,7 +19,7 @@ public class SelectWhereQuery<T> extends EasyQuery {
 		setByType(type, DBColumn.PHASE_SELECT);
 		Table table = type.getAnnotation(Table.class);
 		this.tableName = table.value();
-		sql = "select * from " + tableName + WHERE + WhereClause;
+		sql = "select " + this.keys.getJoinedName(",", false) + columns.getJoinedName(",", true) + " from " + tableName + WHERE + WhereClause;
 
 		for (int i = 0; i < keys.length; i++) {
 			parameters.add(keys[i]);

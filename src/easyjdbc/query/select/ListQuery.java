@@ -89,7 +89,7 @@ public class ListQuery<T> extends EasyQuery {
 	}
 
 	private void setSql() {
-		sql = "select * from " + tableName;
+		sql = "select " + keys.getJoinedName(",", false) + columns.getJoinedName(",", true) + " from " + tableName;
 		if (whereClauses.size() != 0)
 			setWhere();
 		sql += order;

@@ -20,28 +20,6 @@ public abstract class EasyQuery extends Query {
 
 	}
 
-	protected String joinedString(ColumnList columns, String delimiter, boolean isEnd) {
-		String result = new String();
-		for (int i = 0; i < columns.size(); i++) {
-			result += columns.get(i).getNameAndValue() + delimiter;
-		}
-		if (isEnd)
-			result = result.substring(0, result.length() - delimiter.length());
-		return result;
-	}
-
-	protected String getNotNullFieldString(ColumnList columns, String delimiter, boolean isEnd) {
-		String result = new String();
-		for (int i = 0; i < columns.size(); i++) {
-			DBColumn column = columns.get(i);
-			if (column.hasObject())
-				result += column.getNameAndValue() + delimiter;
-		}
-		if (isEnd)
-			result = result.substring(0, result.length() - delimiter.length());
-		return result;
-	}
-
 	protected void setByInstance(Object instance, int phase) {
 		Field[] fields = instance.getClass().getDeclaredFields();
 		for (int i = 0; i < fields.length; i++) {
