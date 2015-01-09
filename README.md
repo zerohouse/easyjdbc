@@ -29,86 +29,153 @@ Json형식으로 WEB-INF/database.setting 파일을 읽음
 
 어노테이션 -------------
 	
-	@Table("테이블네임")
-	@Table(value = "테이블네임", defaultCondition = "기본 조건") - 리스트가져올 때 기본 조건
+	@Table(value = "테이블네임", defaultCondition = "기본 조건", pageSize = 기본 페이지 사이즈(int), joinWith = "조인할 테이블", on = "조인조건 ex) user.id = type.userId", joinType = "조인타입 ex) left, right, inner")
 		
 	@Key = 프라이머리 필드
 	@Exclude = DB에 없는 필드
+	@Othertable = 조인사용시 다른 테이블의 필드
 
 지원하는 메소드 -----------
 
-	DBMethod.insert(Record record)
-	DBMethod.update(Record record)
-	DBMethod.delete(Record record)
-	DBMethod.get(Class<T>, Object PrimaryKey)
-	DBMethod.getList(Class<T>)
-	DBMethod.getList(Class<T>, String Condition)
+	QueryExecuter qe = new QueryExecuter();
+	qe.get(User.class, "zerohouse");
+	qe.getList(User.class);
+	qe.insert(new User());
+	qe.update(new User());
+	qe.delete(new User());
+	long key = qe.insertAndGetPrimarykey(new User());
+	qe.insertIfExistIgnore(new User());
+	qe.insertIfExistUpdate(new User());
+	GetRecordQuery query = new GetRecordQuery(6, "select * from user where id=?", "zerohouse");
+	List<Object> list = qe.execute(query);
+	GetRecordsQuery query2 = new GetRecordsQuery(6, "select * from user where date=?", "2014-12-10");
+	List<List<Object>> lists = qe.execute(query2);
+	ExecuteQuery query3 = new ExecuteQuery("insert into user values(1,2,3,?)", "zerohouse");
+	Boolean result = qe.execute(query3);
+	ListQuery<User> user = new ListQuery<User>(User.class);
+	user.setPage(1, 3); //페이지 인덱스 , 한페이지당 갯수
+	user.setOrder("id", true); // 정렬 기준 칼럼, boolean asc
+	System.out.println(user.execute(qe.conn));
+	qe.close();
+	
 
 샘플 오브젝트 -------------------
 
-	@Table("user")
-	public class User  {
-		@Key
-		private String id;
-		private String password;
-		private String email;
-		private String nickname;
-		private String gender;
-		private Date timestamp;
-		
-		@Exclude
-		private int count;
-		
-		public String getId() {  //디비에 사용되는 모든 필드에 대한 게터와 세터가 있어야함
-			return id;
-		}
+	@Table(value = "user", joinWith = "type", on = "user.id=type.userId", joinType = "left")
+	public class User {
+
+	@Key
+	private String id;
+	@Column(value = "password", valueFormat = "HEX(AES_ENCRYPT(?, ?))")
+	private String password;
+	private String email;
+	private String name;
+	private String nickname;
+	private String gender;
+	private Date timestamp;
 	
-		public void setId(String id) {
-			this.id = id;
-		}
+	@OtherTable("name")
+	private String typeName;
 	
-		public String getPassword() {
-			return password;
-		}
+	@Exclude
+	private int userScore;
 	
-		public void setPassword(String password) {
-			this.password = password;
-		}
-	
-		public String getEmail() {
-			return email;
-		}
-	
-		public void setEmail(String email) {
-			this.email = email;
-		}
-	
-		public String getNickname() {
-			return nickname;
-		}
-	
-		public void setNickname(String nickname) {
-			this.nickname = nickname;
-		}
-	
-		public String getGender() {
-			return gender;
-		}
-	
-		public void setGender(String gender) {
-			this.gender = gender;
-		}
-	
-		public Date getTimestamp() {
-			return timestamp;
-		}
-	
-		public void setTimestamp(Date timestamp) {
-			this.timestamp = timestamp;
-		}
-	
-		
+	public String getTypeName() {
+		return typeName;
 	}
+
+	public void setTypeName(String typeName) {
+		this.typeName = typeName;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+
+
+	@Override
+	public String toString() {
+		return "User [id=" + id + ", password=" + password + ", email=" + email + ", name=" + name + ", nickname=" + nickname + ", gender=" + gender
+				+ ", timestamp=" + timestamp + ", typeName=" + typeName + "]\n";
+	}
+
+	public boolean isPasswordCorrect(User userpassed) {
+		return password.equals(userpassed.getPassword());
+	}
+
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
+
+	public String getPassword() {
+		return password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
+	public String getEmail() {
+		return email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
+	}
+
+	public String getNickname() {
+		return nickname;
+	}
+
+	public void setNickname(String nickname) {
+		this.nickname = nickname;
+	}
+
+	public String getGender() {
+		return gender;
+	}
+
+	public void setGender(String gender) {
+		this.gender = gender;
+	}
+
+	public Date getTimestamp() {
+		return timestamp;
+	}
+
+	public void setTimestamp(Date timestamp) {
+		this.timestamp = timestamp;
+	}
+
+	public void update(User usermod) {
+		String password = usermod.getPassword();
+		String email = usermod.getEmail();
+		String name = usermod.getName();
+		String nickname = usermod.getNickname();
+		String gender = usermod.getGender();
+
+		if (password != null)
+			this.password = password;
+		if (email != null)
+			this.email = email;
+		if (name != null)
+			this.name = name;
+		if (nickname != null)
+			this.nickname = nickname;
+		if (gender != null)
+			this.gender = gender;
+	}
+
+}
 	
 사용 방법 ----------------
 

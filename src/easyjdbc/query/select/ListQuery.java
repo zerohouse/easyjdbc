@@ -38,6 +38,7 @@ public class ListQuery<T> extends EasyQuery {
 	@SuppressWarnings("unchecked")
 	public List<T> execute(Connection conn) {
 		setSql();
+		System.out.println(sql);
 		List<T> result = new ArrayList<T>();
 		PreparedStatement pstmt;
 		try {
@@ -91,7 +92,7 @@ public class ListQuery<T> extends EasyQuery {
 	}
 
 	public void setOrder(String columnName, boolean asc) {
-		order = "order by " + columnName + " ";
+		order = " order by " + columnName + " ";
 		if (!asc)
 			order += "desc ";
 	}

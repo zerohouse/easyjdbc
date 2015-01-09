@@ -87,9 +87,10 @@ public class QueryExecuter {
 
 	public Object insertAndGetPrimaryKey(Object record) {
 		InsertQuery query = new InsertQuery(record);
+		GetRecordQuery primary = new GetRecordQuery(1, "SELECT LAST_INSERT_ID();");
 		if (!query.execute(conn))
 			return null;
-		return get(1, "SELECT LAST_INSERT_ID();").get(0);
+		return primary.execute(conn).get(0);
 	}
 	
 	public int insertIfExistUpdate(Object... records){
@@ -103,16 +104,8 @@ public class QueryExecuter {
 		}
 		return doneQueries;
 	}
-
-	public boolean execute(String sql, Object... parameters){
-		ExecuteQuery query = new ExecuteQuery(sql, parameters);
-		return query.execute(conn);
-	}
 	
-	public List<List<Object>> getList(int i, String sql, Object... parameters) {
-		GetRecordsQuery query = new GetRecordsQuery(i, sql, parameters);
-		return query.execute(conn);
-	}
+	
 
 	public <T> List<T> getList(Class<T> cLass) {
 		ListQuery<T> query = new ListQuery<T>(cLass);
@@ -124,11 +117,7 @@ public class QueryExecuter {
 		return query.execute(conn);
 	}
 	
-	public List<Object> get(int resultSetSize, String sql) {
-		GetRecordQuery query = new GetRecordQuery(resultSetSize, sql);
-		return query.execute(conn);
-	}
-
+	
 	public <T> T get(Class<T> cLass, Object... primaryKey) {
 		SelectQuery<T> query = new SelectQuery<T>(cLass, primaryKey);
 		return query.execute(conn);
@@ -136,6 +125,18 @@ public class QueryExecuter {
 
 	public <T> T getWhere(Class<T> cLass, String WhereClause, Object... keys) {
 		SelectWhereQuery<T> query = new SelectWhereQuery<T>(cLass, WhereClause, keys);
+		return query.execute(conn);
+	}
+
+	public List<Object> execute(GetRecordQuery query) {
+		return query.execute(conn);
+	}
+	
+	public List<List<Object>> execute(GetRecordsQuery query) {
+		return query.execute(conn);
+	}
+	
+	public boolean execute(ExecuteQuery query) {
 		return query.execute(conn);
 	}
 

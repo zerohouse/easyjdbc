@@ -22,10 +22,6 @@ public class User {
 	@OtherTable("name")
 	private String typeName;
 	
-
-	
-
-
 	public String getTypeName() {
 		return typeName;
 	}
