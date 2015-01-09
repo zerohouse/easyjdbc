@@ -29,7 +29,10 @@ Json형식으로 WEB-INF/database.setting 파일을 읽음
 
 어노테이션 -------------
 	
-	@Table(value = "테이블네임", defaultCondition = "기본 조건", pageSize = 기본 페이지 사이즈(int), joinWith = "조인할 테이블", on = "조인조건 ex) user.id = type.userId", joinType = "조인타입 ex) left, right, inner")
+	@Table(value = "테이블네임", defaultCondition = "기본 조건",
+	 pageSize = 기본 페이지 사이즈(int), joinWith = "조인할 테이블",
+	  on = "조인조건 ex) user.id = type.userId",
+	  joinType = "조인타입 ex) left, right, inner")
 		
 	@Key = 프라이머리 필드
 	@Exclude = DB에 없는 필드
@@ -38,14 +41,14 @@ Json형식으로 WEB-INF/database.setting 파일을 읽음
 지원하는 메소드 -----------
 
 	QueryExecuter qe = new QueryExecuter();
-	qe.get(User.class, "zerohouse");
-	qe.getList(User.class);
-	qe.insert(new User());
-	qe.update(new User());
-	qe.delete(new User());
+	User user = qe.get(User.class, "zerohouse");
+	List<User> userlist = qe.getList(User.class);
+	boolean result = qe.insert(new User());
+	boolean result =  qe.update(new User());
+	boolean result = qe.delete(new User());
 	long key = qe.insertAndGetPrimarykey(new User());
-	qe.insertIfExistIgnore(new User());
-	qe.insertIfExistUpdate(new User());
+	boolean result = qe.insertIfExistIgnore(new User());
+	boolean result = qe.insertIfExistUpdate(new User());
 	GetRecordQuery query = new GetRecordQuery(6, "select * from user where id=?", "zerohouse");
 	List<Object> list = qe.execute(query);
 	GetRecordsQuery query2 = new GetRecordsQuery(6, "select * from user where date=?", "2014-12-10");
@@ -55,7 +58,7 @@ Json형식으로 WEB-INF/database.setting 파일을 읽음
 	ListQuery<User> user = new ListQuery<User>(User.class);
 	user.setPage(1, 3); //페이지 인덱스 , 한페이지당 갯수
 	user.setOrder("id", true); // 정렬 기준 칼럼, boolean asc
-	System.out.println(user.execute(qe.conn));
+	List<User> userList = user.execute(qe.conn));
 	qe.close();
 	
 
@@ -97,12 +100,6 @@ Json형식으로 WEB-INF/database.setting 파일을 읽음
 	}
 
 
-
-	@Override
-	public String toString() {
-		return "User [id=" + id + ", password=" + password + ", email=" + email + ", name=" + name + ", nickname=" + nickname + ", gender=" + gender
-				+ ", timestamp=" + timestamp + ", typeName=" + typeName + "]\n";
-	}
 
 	public boolean isPasswordCorrect(User userpassed) {
 		return password.equals(userpassed.getPassword());
@@ -175,10 +172,5 @@ Json형식으로 WEB-INF/database.setting 파일을 읽음
 			this.gender = gender;
 	}
 
-}
-	
-사용 방법 ----------------
+	}
 
-	User user = (User) DBMethods.get(User.class, "zerohouse");
-	List<Record> = DBMethods.getList(User.class, "zerohouse");
-	DBMethods.update(user);
