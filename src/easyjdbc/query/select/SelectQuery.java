@@ -5,8 +5,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import com.mysql.jdbc.ResultSetMetaData;
-
 import easyjdbc.column.list.ColumnList;
 import easyjdbc.column.list.SelectList;
 import easyjdbc.query.EasyQuery;
@@ -25,7 +23,6 @@ public class SelectQuery<T> extends EasyQuery {
 
 	@SuppressWarnings("unchecked")
 	public T execute(Connection conn) {
-		System.out.println(sql);
 		PreparedStatement pstmt;
 		try {
 			pstmt = conn.prepareStatement(sql);
@@ -34,7 +31,6 @@ public class SelectQuery<T> extends EasyQuery {
 					pstmt.setObject(j + 1, parameters.get(j));
 				}
 			ResultSet rs = pstmt.executeQuery();
-			java.sql.ResultSetMetaData data = rs.getMetaData();
 			Object instance = null;
 			try {
 				if (rs.next()) {

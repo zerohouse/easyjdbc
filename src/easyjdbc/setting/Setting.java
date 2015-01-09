@@ -4,8 +4,6 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 
-import com.google.gson.stream.JsonReader;
-
 public class Setting {
 
 	public static final String PASSWORD = "password";
