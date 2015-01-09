@@ -13,6 +13,7 @@ import easyjdbc.column.DBColumn;
 public class SelectList extends ColumnListProto {
 
 	private String joinWith;
+	private String joinType;
 	private String on;
 
 	public SelectList(Class<?> cLass, Object... primaryKey) {
@@ -23,6 +24,7 @@ public class SelectList extends ColumnListProto {
 		if (!table.joinWith().equals("")) {
 			joinWith = table.joinWith();
 			on = table.on();
+			joinType = table.joinType();
 			this.isJoined = true;
 		}
 		int j = 0;
@@ -71,7 +73,7 @@ public class SelectList extends ColumnListProto {
 	@Override
 	public String getTableName() {
 		if (isJoined) {
-			return String.format("%s inner join %s on %s", tableName, joinWith, on);
+			return String.format("%s %s join %s on %s", tableName, joinType ,joinWith, on);
 		}
 		return tableName;
 	}

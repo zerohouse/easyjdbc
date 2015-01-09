@@ -14,6 +14,8 @@ public @interface Table {
 
 	String joinWith() default "";
 	
+	String joinType() default "inner";
+	
 	String on() default "";
 	
 }

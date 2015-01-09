@@ -7,7 +7,7 @@ import easyjdbc.annotation.Key;
 import easyjdbc.annotation.OtherTable;
 import easyjdbc.annotation.Table;
 
-@Table(value = "user", joinWith = "type", on = "user.id=type.userId")
+@Table(value = "user", joinWith = "type", on = "user.id=type.userId", joinType = "left")
 public class User {
 
 	@Key
