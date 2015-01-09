@@ -8,9 +8,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import easyjdbc.annotation.Table;
+import easyjdbc.columnset.ColumnList;
+import easyjdbc.columnset.TypeOnly;
 import easyjdbc.query.EasyQuery;
-import easyjdbc.query.support.ColumnList;
-import easyjdbc.query.support.DBColumn;
 
 public class ListQuery<T> extends EasyQuery {
 
@@ -20,7 +20,7 @@ public class ListQuery<T> extends EasyQuery {
 	private int pageSize;
 
 	public ListQuery(Class<T> cLass, String whereClause, Object... keys) {
-		list = new ColumnList(cLass, DBColumn.PHASE_SELECT);
+		list = new TypeOnly(cLass);
 		Table table = cLass.getAnnotation(Table.class);
 		this.pageSize = table.pageSize();
 		whereClauses.add(whereClause);
@@ -29,7 +29,7 @@ public class ListQuery<T> extends EasyQuery {
 	}
 
 	public ListQuery(Class<T> cLass) {
-		list = new ColumnList(cLass, DBColumn.PHASE_SELECT);
+		list = new TypeOnly(cLass);
 		Table table = cLass.getAnnotation(Table.class);
 		if (!table.defaultCondition().equals(""))
 			whereClauses.add(table.defaultCondition());
@@ -50,7 +50,7 @@ public class ListQuery<T> extends EasyQuery {
 			Object instance = null;
 			try {
 				while (rs.next()) {
-					instance = list.getObject(ColumnList.ALL, rs);
+					instance = list.getObject(rs);
 					result.add((T) instance);
 				}
 			} catch (Exception e) {

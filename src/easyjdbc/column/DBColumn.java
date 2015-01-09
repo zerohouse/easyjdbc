@@ -1,4 +1,4 @@
-package easyjdbc.query.support;
+package easyjdbc.column;
 
 import java.lang.reflect.Field;
 import java.util.List;
@@ -9,25 +9,18 @@ import easyjdbc.annotation.Column;
 
 public class DBColumn {
 
-	public static final int PHASE_INSERT = 0;
-	public static final int PHASE_DELETE = 1;
-	public static final int PHASE_UPDATE = 2;
-	public static final int PHASE_SELECT = 3;
-
 	private String columnName;
 	private String format;
 	private Field field;
 	private Object object;
-	private int phase;
 	private int expectedSize = 1;
 
-	public DBColumn(Field field, int phase, Object object) {
-		this(field, phase);
+	public DBColumn(Field field, Object object) {
+		this(field);
 		this.object = object;
 	}
 
-	public DBColumn(Field field, int phase) {
-		this.phase = phase;
+	public DBColumn(Field field) {
 		this.field = field;
 		columnSetting();
 	}
@@ -51,9 +44,6 @@ public class DBColumn {
 		expectedSize = count;
 	}
 
-	public int getPhase() {
-		return phase;
-	}
 
 	public Object getObject() {
 		return object;
@@ -63,7 +53,7 @@ public class DBColumn {
 		return columnName;
 	}
 
-	public Object setObjectField(Object instance, Object parameter) {
+	public Object getObjectField(Object instance, Object parameter) {
 		try {
 			return instance.getClass().getMethod(setterString(field.getName()), field.getType()).invoke(instance, parameter);
 		} catch (Exception e) {

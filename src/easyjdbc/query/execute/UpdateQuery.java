@@ -1,12 +1,12 @@
 package easyjdbc.query.execute;
 
-import easyjdbc.query.support.ColumnList;
-import easyjdbc.query.support.DBColumn;
+import easyjdbc.columnset.ColumnList;
+import easyjdbc.columnset.HasObject;
 
 public class UpdateQuery extends ExecuteableQuery {
 
 	public UpdateQuery(Object instance) {
-		list = new ColumnList(instance, DBColumn.PHASE_UPDATE);
+		list = new HasObject(instance);
 		sql = "update " + list.getTableName() + " set " + list.addAndGetString(ColumnList.ALL, parameters, COMMA, true);
 	}
 

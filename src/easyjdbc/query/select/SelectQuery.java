@@ -5,14 +5,14 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import easyjdbc.columnset.ColumnList;
+import easyjdbc.columnset.PassedParameters;
 import easyjdbc.query.EasyQuery;
-import easyjdbc.query.support.ColumnList;
-import easyjdbc.query.support.DBColumn;
 
 public class SelectQuery<T> extends EasyQuery {
 
 	public SelectQuery(Class<T> cLass, Object... primaryKey) {
-		list = new ColumnList(cLass, DBColumn.PHASE_SELECT, primaryKey);
+		list = new PassedParameters(cLass,primaryKey);
 		sql = "select " + list.getJoinedName(ColumnList.ALL, ",", true) + " from " + list.getTableName() + WHERE
 				+ list.getNameAndValue(ColumnList.KEY, AND, true);
 
@@ -34,7 +34,7 @@ public class SelectQuery<T> extends EasyQuery {
 			Object instance = null;
 			try {
 				if (rs.next()) {
-					instance = list.getObject(ColumnList.ALL, rs);
+					instance = list.getObject(rs);
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
