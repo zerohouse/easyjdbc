@@ -5,7 +5,5 @@ import java.lang.annotation.RetentionPolicy;
 
 @Retention(RetentionPolicy.RUNTIME)
 public @interface OtherTable {
-	String table();
-	
-	String column();
+	String value() default "";
 }

@@ -1,4 +1,4 @@
-package easyjdbc.columnset;
+package easyjdbc.column.list;
 
 import java.sql.ResultSet;
 import java.util.ArrayList;
@@ -13,37 +13,43 @@ public abstract class ColumnListProto implements ColumnList {
 
 	protected Class<?> type;
 	protected String tableName;
+	protected boolean isJoined = false;
 
 	
 	public String getTableName() {
 		return tableName;
 	}
 
-
-	
 	public String getJoinedName(int type, String delimiter, boolean isEnd) {
 		List<DBColumn> list = typeDefine(type);
 
 		String result = new String();
+		DBColumn each;
 		for (int i = 0; i < list.size(); i++) {
-			result += list.get(i).getColumnName() + delimiter;
+			each = list.get(i);
+			result += eachColumnName(delimiter, each);
 		}
 		if (isEnd)
 			result = result.substring(0, result.length() - delimiter.length());
 		return result;
 	}
+
+
 
 	public String getNameAndValue(int type, String delimiter, boolean isEnd) {
 		List<DBColumn> list = typeDefine(type);
 
+		DBColumn each;
 		String result = new String();
 		for (int i = 0; i < list.size(); i++) {
-			result += list.get(i).getNameAndValue() + delimiter;
+			each = list.get(i);
+			result += eachNameAndValue(delimiter, each);
 		}
 		if (isEnd)
 			result = result.substring(0, result.length() - delimiter.length());
 		return result;
 	}
+	
 
 	public String addAndGetString(int type, List<Object> parameters, String delimiter, boolean isEnd) {
 		List<DBColumn> list = typeDefine(type);
@@ -52,13 +58,22 @@ public abstract class ColumnListProto implements ColumnList {
 		for (int i = 0; i < list.size(); i++) {
 			DBColumn column = list.get(i);
 			if (column.hasObject())
-				result += column.getNameAndValue() + delimiter;
+				result += eachNameAndValue(delimiter, column);
 			column.addObject(parameters);
 		}
 		if (isEnd)
 			result = result.substring(0, result.length() - delimiter.length());
 		return result;
 	}
+	
+	protected String eachColumnName(String delimiter, DBColumn each) {
+		return each.getColumnName() + delimiter;
+	}
+
+	protected String eachNameAndValue(String delimiter, DBColumn each) {
+		return each.getNameAndValue() + delimiter;
+	}
+
 
 	public void addParameters(int type, List<Object> parameters) {
 		List<DBColumn> list = typeDefine(type);
@@ -68,14 +83,14 @@ public abstract class ColumnListProto implements ColumnList {
 		}
 	}
 
-	public Object getObject(ResultSet rs) {
+	public Object objFromResultSet(ResultSet rs) {
 		List<DBColumn> list = typeDefine(ColumnList.ALL);
 		Object instance;
 		try {
 			instance = this.type.getConstructor().newInstance();
 			for (int i = 0; i < list.size(); i++) {
 				DBColumn column = list.get(i);
-				column.getObjectField(instance, rs.getObject(column.getColumnName()));
+				column.setObjectField(instance, rs.getObject(column.getColumnName()));
 			}
 			return instance;
 		} catch (Exception e) {
@@ -84,7 +99,7 @@ public abstract class ColumnListProto implements ColumnList {
 		return null;
 	}
 
-	private List<DBColumn> typeDefine(int type) {
+	protected List<DBColumn> typeDefine(int type) {
 		List<DBColumn> list;
 		switch (type) {
 		case ALL:

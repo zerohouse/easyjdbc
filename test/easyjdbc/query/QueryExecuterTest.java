@@ -33,7 +33,7 @@ public class QueryExecuterTest {
 	public void updateTest() {
 		User user = qe.get(User.class, "zerohouse");
 		user.setId("zerohou");
-		user.setEmail("zerohou@ss.com");
+		user.setEmail("zerohou@ff.com");
 		qe.update(user);
 	}
 	

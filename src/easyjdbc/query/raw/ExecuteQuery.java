@@ -44,6 +44,7 @@ public class ExecuteQuery extends Query {
 				}
 			return result != 0;
 		} catch (SQLException e) {
+			System.out.println(sql);
 			e.printStackTrace();
 		}
 		return false;

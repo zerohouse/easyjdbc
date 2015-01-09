@@ -9,16 +9,21 @@ import easyjdbc.annotation.Column;
 
 public class DBColumn {
 
+	private boolean otherTable = false;
 	private String columnName;
 	private String format;
 	private Field field;
+	
+	public boolean isOtherTable() {
+		return otherTable;
+	}
+
+	public void setOtherTable(boolean otherTable) {
+		this.otherTable = otherTable;
+	}
+
 	private Object object;
 	private int expectedSize = 1;
-
-	public DBColumn(Field field, Object object) {
-		this(field);
-		this.object = object;
-	}
 
 	public DBColumn(Field field) {
 		this.field = field;
@@ -44,6 +49,9 @@ public class DBColumn {
 		expectedSize = count;
 	}
 
+	public void setColumnName(String columnName) {
+		this.columnName = columnName;
+	}
 
 	public Object getObject() {
 		return object;
@@ -53,11 +61,11 @@ public class DBColumn {
 		return columnName;
 	}
 
-	public Object getObjectField(Object instance, Object parameter) {
+	public void setObjectField(Object instance, Object parameter) {
 		try {
-			return instance.getClass().getMethod(setterString(field.getName()), field.getType()).invoke(instance, parameter);
+			instance.getClass().getMethod(setterString(field.getName()), field.getType()).invoke(instance, parameter);
 		} catch (Exception e) {
-			return null;
+			e.printStackTrace();
 		}
 	}
 
@@ -98,6 +106,10 @@ public class DBColumn {
 	public void addObject(List<Object> parameters) {
 		for (int i = 0; i < expectedSize; i++)
 			parameters.add(object);
+	}
+
+	public void setObject(Object object) {
+		this.object = object;
 	}
 
 }

@@ -5,14 +5,14 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import easyjdbc.columnset.ColumnList;
-import easyjdbc.columnset.TypeOnly;
+import easyjdbc.column.list.ColumnList;
+import easyjdbc.column.list.SelectList;
 import easyjdbc.query.EasyQuery;
 
 public class SelectWhereQuery<T> extends EasyQuery {
 
 	public SelectWhereQuery(Class<T> cLass, String WhereClause, Object... keys) {
-		list = new TypeOnly(cLass);
+		list = new SelectList(cLass);
 		sql = "select " + list.getJoinedName(ColumnList.ALL, ",", true) + " from " + list.getTableName() + WHERE + WhereClause;
 
 		for (int i = 0; i < keys.length; i++) {
@@ -33,9 +33,10 @@ public class SelectWhereQuery<T> extends EasyQuery {
 			Object instance = null;
 			try {
 				if (rs.next()) {
-					instance = list.getObject(rs);
+					instance = list.objFromResultSet(rs);
 				}
 			} catch (Exception e) {
+				System.out.println(sql);
 				e.printStackTrace();
 			} finally {
 				if (pstmt != null)

@@ -5,14 +5,16 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import easyjdbc.columnset.ColumnList;
-import easyjdbc.columnset.PassedParameters;
+import com.mysql.jdbc.ResultSetMetaData;
+
+import easyjdbc.column.list.ColumnList;
+import easyjdbc.column.list.SelectList;
 import easyjdbc.query.EasyQuery;
 
 public class SelectQuery<T> extends EasyQuery {
 
 	public SelectQuery(Class<T> cLass, Object... primaryKey) {
-		list = new PassedParameters(cLass,primaryKey);
+		list = new SelectList(cLass, primaryKey);
 		sql = "select " + list.getJoinedName(ColumnList.ALL, ",", true) + " from " + list.getTableName() + WHERE
 				+ list.getNameAndValue(ColumnList.KEY, AND, true);
 
@@ -23,6 +25,7 @@ public class SelectQuery<T> extends EasyQuery {
 
 	@SuppressWarnings("unchecked")
 	public T execute(Connection conn) {
+		System.out.println(sql);
 		PreparedStatement pstmt;
 		try {
 			pstmt = conn.prepareStatement(sql);
@@ -31,10 +34,11 @@ public class SelectQuery<T> extends EasyQuery {
 					pstmt.setObject(j + 1, parameters.get(j));
 				}
 			ResultSet rs = pstmt.executeQuery();
+			java.sql.ResultSetMetaData data = rs.getMetaData();
 			Object instance = null;
 			try {
 				if (rs.next()) {
-					instance = list.getObject(rs);
+					instance = list.objFromResultSet(rs);
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -52,6 +56,7 @@ public class SelectQuery<T> extends EasyQuery {
 			}
 			return (T) instance;
 		} catch (SQLException e1) {
+			System.out.println(sql);
 			e1.printStackTrace();
 		}
 		return null;

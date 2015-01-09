@@ -4,10 +4,10 @@ import java.util.Date;
 
 import easyjdbc.annotation.Column;
 import easyjdbc.annotation.Key;
+import easyjdbc.annotation.OtherTable;
 import easyjdbc.annotation.Table;
-import easyjdbc.query.QueryExecuter;
 
-@Table("user")
+@Table(value = "user", joinWith = "type", on = "user.id=type.userId")
 public class User {
 
 	@Key
@@ -19,8 +19,20 @@ public class User {
 	private String nickname;
 	private String gender;
 	private Date timestamp;
+	@OtherTable("name")
+	private String typeName;
 	
+
 	
+
+
+	public String getTypeName() {
+		return typeName;
+	}
+
+	public void setTypeName(String typeName) {
+		this.typeName = typeName;
+	}
 
 	public String getName() {
 		return name;
@@ -30,10 +42,12 @@ public class User {
 		this.name = name;
 	}
 
+
+
 	@Override
 	public String toString() {
 		return "User [id=" + id + ", password=" + password + ", email=" + email + ", name=" + name + ", nickname=" + nickname + ", gender=" + gender
-				+ ", timestamp=" + timestamp + "]";
+				+ ", timestamp=" + timestamp + ", typeName=" + typeName + "]\n";
 	}
 
 	public boolean isPasswordCorrect(User userpassed) {

@@ -1,4 +1,4 @@
-package easyjdbc.columnset;
+package easyjdbc.column.list;
 
 import java.sql.ResultSet;
 import java.util.List;
@@ -11,7 +11,7 @@ public interface ColumnList {
 	
 	String getTableName();
 
-	Object getObject(ResultSet rs);
+	Object objFromResultSet(ResultSet rs);
 
 	String getNameAndValue(int type, String deter, boolean isLast);
 

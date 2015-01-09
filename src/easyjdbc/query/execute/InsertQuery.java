@@ -1,12 +1,12 @@
 package easyjdbc.query.execute;
 
-import easyjdbc.columnset.ColumnList;
-import easyjdbc.columnset.HasObject;
+import easyjdbc.column.list.ColumnList;
+import easyjdbc.column.list.ObjectList;
 
 public class InsertQuery extends ExecuteableQuery {
 
 	public InsertQuery(Object instance) {
-		list = new HasObject(instance);
+		list = new ObjectList(instance);
 		sql = "insert " + list.getTableName() + " set " + list.addAndGetString(ColumnList.ALL, parameters, COMMA, true);
 	}
 

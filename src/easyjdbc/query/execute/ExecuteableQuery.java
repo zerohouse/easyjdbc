@@ -25,6 +25,7 @@ public class ExecuteableQuery extends EasyQuery {
 				}
 			return result == 1;
 		} catch (SQLException e) {
+			System.out.println(sql);
 			e.printStackTrace();
 		}
 		return false;

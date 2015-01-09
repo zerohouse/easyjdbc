@@ -1,6 +1,6 @@
 package easyjdbc.query;
 
-import easyjdbc.columnset.ColumnList;
+import easyjdbc.column.list.ColumnList;
 
 public abstract class EasyQuery extends Query {
 

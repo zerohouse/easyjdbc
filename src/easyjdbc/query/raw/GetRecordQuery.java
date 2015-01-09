@@ -37,6 +37,7 @@ public class GetRecordQuery extends Query {
 				} catch (SQLException sqle) {
 				}
 		} catch (SQLException e) {
+			System.out.println(sql);
 			e.printStackTrace();
 		}
 		return record;
