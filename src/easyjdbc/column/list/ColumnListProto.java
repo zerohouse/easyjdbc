@@ -15,7 +15,6 @@ public abstract class ColumnListProto implements ColumnList {
 	protected String tableName;
 	protected boolean isJoined = false;
 
-	
 	public String getTableName() {
 		return tableName;
 	}
@@ -34,8 +33,6 @@ public abstract class ColumnListProto implements ColumnList {
 		return result;
 	}
 
-
-
 	public String getNameAndValue(int type, String delimiter, boolean isEnd) {
 		List<DBColumn> list = typeDefine(type);
 
@@ -49,7 +46,6 @@ public abstract class ColumnListProto implements ColumnList {
 			result = result.substring(0, result.length() - delimiter.length());
 		return result;
 	}
-	
 
 	public String addAndGetString(int type, List<Object> parameters, String delimiter, boolean isEnd) {
 		List<DBColumn> list = typeDefine(type);
@@ -57,15 +53,16 @@ public abstract class ColumnListProto implements ColumnList {
 		String result = new String();
 		for (int i = 0; i < list.size(); i++) {
 			DBColumn column = list.get(i);
-			if (column.hasObject())
+			if (column.hasObject()) {
 				result += eachNameAndValue(delimiter, column);
-			column.addObject(parameters);
+				column.addObject(parameters);
+			}
 		}
 		if (isEnd)
 			result = result.substring(0, result.length() - delimiter.length());
 		return result;
 	}
-	
+
 	protected String eachColumnName(String delimiter, DBColumn each) {
 		return each.getColumnName() + delimiter;
 	}
@@ -73,7 +70,6 @@ public abstract class ColumnListProto implements ColumnList {
 	protected String eachNameAndValue(String delimiter, DBColumn each) {
 		return each.getNameAndValue() + delimiter;
 	}
-
 
 	public void addParameters(int type, List<Object> parameters) {
 		List<DBColumn> list = typeDefine(type);

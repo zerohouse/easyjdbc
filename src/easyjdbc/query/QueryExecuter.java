@@ -1,5 +1,6 @@
 package easyjdbc.query;
 
+import java.math.BigInteger;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -85,12 +86,12 @@ public class QueryExecuter {
 		return query.execute(conn);
 	}
 
-	public Object insertAndGetPrimaryKey(Object record) {
+	public BigInteger insertAndGetPrimaryKey(Object record) {
 		InsertQuery query = new InsertQuery(record);
 		GetRecordQuery primary = new GetRecordQuery(1, "SELECT LAST_INSERT_ID();");
 		if (!query.execute(conn))
 			return null;
-		return primary.execute(conn).get(0);
+		return (BigInteger) primary.execute(conn).get(0);
 	}
 	
 	public int insertIfExistUpdate(Object... records){

@@ -18,6 +18,7 @@ public class ListQuery<T> extends EasyQuery {
 	private String order = "";
 	private String limit = "";
 	private int pageSize;
+	private String defaultCondition = "";
 
 	public ListQuery(Class<T> cLass, String whereClause, Object... keys) {
 		list = new SelectList(cLass);
@@ -32,7 +33,7 @@ public class ListQuery<T> extends EasyQuery {
 		list = new SelectList(cLass);
 		Table table = cLass.getAnnotation(Table.class);
 		if (!table.defaultCondition().equals(""))
-			whereClauses.add(table.defaultCondition());
+			defaultCondition = table.defaultCondition();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -80,6 +81,7 @@ public class ListQuery<T> extends EasyQuery {
 		sql = "select " + list.getJoinedName(ColumnList.ALL, ",", true) + " from " + list.getTableName();
 		if (whereClauses.size() != 0)
 			setWhere();
+		sql += " " + defaultCondition;
 		sql += order;
 		sql += limit;
 	}
