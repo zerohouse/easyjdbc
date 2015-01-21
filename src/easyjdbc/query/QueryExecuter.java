@@ -6,7 +6,6 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.List;
 
-import sapyo.objects.User;
 import easyjdbc.annotation.Table;
 import easyjdbc.query.execute.DeleteQuery;
 import easyjdbc.query.execute.DeleteWhereQuery;
@@ -124,13 +123,13 @@ public class QueryExecuter {
 		return query.execute(conn);
 	}
 
-	public long getCount(Class<User> cLass) {
+	public long getCount(Class<?> cLass) {
 		PrimaryFields primary = new PrimaryFields(cLass);
 		GetRecordQuery query = new GetRecordQuery(1, "select count(?) from " + cLass.getAnnotation(Table.class).value(), primary.get(0).getName());
 		return (long) query.execute(conn).get(0);
 	}
 
-	public long getCount(Class<User> cLass, String whereClause, Object... keys) {
+	public long getCount(Class<?> cLass, String whereClause, Object... keys) {
 		PrimaryFields primary = new PrimaryFields(cLass);
 		String sql = "select count(" + primary.get(0).getName() + ") from " + cLass.getAnnotation(Table.class).value() + " where " + whereClause;
 		GetRecordQuery query = new GetRecordQuery(1, sql, keys);
