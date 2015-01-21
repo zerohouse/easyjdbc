@@ -27,6 +27,10 @@ public class PrimaryFields {
 	public void add(Field field) {
 		keys.add(field);
 	}
+	
+	public Field get(int index){
+		return keys.get(index);
+	}
 
 	public String getCondition() {
 		String result = "";
