@@ -39,7 +39,6 @@ public class ListQuery<T> extends EasyQuery {
 	@SuppressWarnings("unchecked")
 	public List<T> execute(Connection conn) {
 		setSql();
-		System.out.println(sql);
 		List<T> result = new ArrayList<T>();
 		PreparedStatement pstmt;
 		try {

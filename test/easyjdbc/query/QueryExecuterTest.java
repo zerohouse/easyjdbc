@@ -16,8 +16,7 @@ public class QueryExecuterTest {
 
 	@Test
 	public void getTest() {
-		User user = qe.get(User.class, "zerohouse");
-		System.out.println(user);
+		QueryExecuter.getConnection();
 	}
 
 	@Test
