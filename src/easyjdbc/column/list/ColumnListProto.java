@@ -28,8 +28,11 @@ public abstract class ColumnListProto implements ColumnList {
 			each = list.get(i);
 			result += eachColumnName(delimiter, each);
 		}
-		if (isEnd)
-			result = result.substring(0, result.length() - delimiter.length());
+		if (!isEnd)
+			return result;
+		if (result.length() <= delimiter.length())
+			return result;
+		result = result.substring(0, result.length() - delimiter.length());
 		return result;
 	}
 
@@ -42,8 +45,11 @@ public abstract class ColumnListProto implements ColumnList {
 			each = list.get(i);
 			result += eachNameAndValue(delimiter, each);
 		}
-		if (isEnd)
-			result = result.substring(0, result.length() - delimiter.length());
+		if (!isEnd)
+			return result;
+		if (result.length() <= delimiter.length())
+			return result;
+		result = result.substring(0, result.length() - delimiter.length());
 		return result;
 	}
 
@@ -58,8 +64,11 @@ public abstract class ColumnListProto implements ColumnList {
 				column.addObject(parameters);
 			}
 		}
-		if (isEnd)
-			result = result.substring(0, result.length() - delimiter.length());
+		if (!isEnd)
+			return result;
+		if (result.length() <= delimiter.length())
+			return result;
+		result = result.substring(0, result.length() - delimiter.length());
 		return result;
 	}
 
