@@ -8,7 +8,6 @@ import java.util.List;
 
 import easyjdbc.annotation.Table;
 import easyjdbc.query.execute.DeleteQuery;
-import easyjdbc.query.execute.DeleteWhereQuery;
 import easyjdbc.query.execute.InsertQuery;
 import easyjdbc.query.execute.UpdateQuery;
 import easyjdbc.query.raw.ExecuteQuery;
@@ -83,8 +82,9 @@ public class QueryExecuter {
 		return doneQueries;
 	}
 
-	public boolean delete(Class<?> cLass, String WhereClause, Object... parameters) {
-		DeleteWhereQuery query = new DeleteWhereQuery(cLass, WhereClause, parameters);
+	public boolean delete(Class<?> cLass, String whereClause, Object... parameters) {
+		String sql = "delete from " + cLass.getAnnotation(Table.class).value() + " where " + whereClause;
+		ExecuteQuery query = new ExecuteQuery(sql, parameters);
 		return query.execute(conn);
 	}
 
