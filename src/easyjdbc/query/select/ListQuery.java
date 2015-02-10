@@ -71,6 +71,7 @@ public class ListQuery<T> extends EasyQuery {
 			}
 			return result;
 		} catch (SQLException e1) {
+			System.out.println(sql);
 			e1.printStackTrace();
 		}
 		return null;
